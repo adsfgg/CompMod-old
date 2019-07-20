@@ -6,6 +6,13 @@ local networkVars =
     quickThrown = "boolean"
 }
 
+local oldOnPrimaryAttack = GrenadeThrower.OnPrimaryAttack
+function GrenadeThrower:OnPrimaryAttack(_)
+    oldOnPrimaryAttack(_)
+
+    self:SetIsQuickThrown(true)
+end
+
 function GrenadeThrower:GetIsQuickThrown()
     return self.quickThrown
 end
