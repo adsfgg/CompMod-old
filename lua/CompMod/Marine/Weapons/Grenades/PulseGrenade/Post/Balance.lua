@@ -1,0 +1,1 @@
+kPulseGrenadeDamage = 50 --140
