@@ -1,32 +1,38 @@
 local kMarineWeaponDecaySlowDistance = 4
 
-local oldCheckExpireTime = Weapon.CheckExpireTime
+local stayTime = kWeaponStayTime
+local stayTimeSlowed = kWeaponStayTime * 2
+
 function Weapon:CheckExpireTime()
-    if oldCheckExpireTime(self) then
-        local expireFraction = self:GetExpireTimeFraction()
-        if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), kMarineWeaponDecaySlowDistance) > 0 then
-            if not self.decaySlowed then
-                local oldExpireTime = self:GetExpireTime()
-                local timeLeft = kWeaponStayTime * expireFraction
-                local extension = (timeLeft * 2) - kWeaponStayTime
-                local newTime = oldExpireTime + extension
+    PROFILE("Weapon:CheckExpireTime")
 
-                self.expireTime = newTime
+    if self:GetExpireTime() == 0 then
+        return false
+    end
 
-                CompMod:Print("Expire time slowed from " .. oldExpireTime .. " to " .. newTime)
+    if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), kMarineWeaponDecaySlowDistance) > 0 then
+        if not self.decaySlowed then
+            local oldExpireTime = self:GetExpireTime()
+            self.decaySlowed = true
+            kWeaponStayTime = stayTimeSlowed
+            self.expireTime = self.weaponWorldStateTime + kWeaponStayTime
 
-                self.decaySlowed = true
-            end
-        else
-            if self.decaySlowed then
-                local timeLeft = kWeaponStayTime * expireFraction
-                local oldExpireTime = self:GetExpireTime()
-                self.expireTime = self.expireTime - (timeLeft / 2)
-                local newTime = self:GetExpireTime()
-                self.decaySlowed = false
+            CompMod:Print("Slowing...")
+            CompMod:Print("Expire Time Fraction now " .. self:GetExpireTimeFraction())
+            CompMod:Print("Old expire time " .. oldExpireTime)
+            CompMod:Print("Expire time now " .. self:GetExpireTime())
+        end
+    else
+        if self.decaySlowed then
+            local oldExpireTime = self.expireTime
+            self.decaySlowed = false
+            kWeaponStayTime = stayTime
+            self.expireTime = self.weaponWorldStateTime + kWeaponStayTime
 
-                CompMod:Print("Expire time restored from " .. oldExpireTime .. " to " .. newTime)
-            end
+            CompMod:Print("Restoring")
+            CompMod:Print("Expire Time Fraction now " .. self:GetExpireTimeFraction())
+            CompMod:Print("Old expire time " .. oldExpireTime)
+            CompMod:Print("Expire time now " .. self:GetExpireTime())
         end
     end
 
