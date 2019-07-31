@@ -62,11 +62,13 @@ local modules = {
 	  ==========================
 	]]
 
+	"Marine/MarinePresenceSlowsWeaponDecay",
+	"Marine/PowerSurge",
+
 	-- Structure Modules
 		-- ARCs
 		"Marine/Structures/ARC/ARCCorrodeBugFix",
-	
-	"Marine/PowerSurge",
+
 	"Marine/SupplyChanges",
 	"Marine/Walk",
 
