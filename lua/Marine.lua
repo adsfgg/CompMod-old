@@ -153,8 +153,7 @@ local networkVars =
     
     timeLastBeacon = "private time",
     
-    weaponBeforeUseId = "private compensated entityid",
-    quickThrowKeyActivated = "private boolean"
+    weaponBeforeUseId = "private compensated entityid"
 }
 
 AddMixinNetworkVars(OrdersMixin, networkVars)
@@ -253,7 +252,6 @@ function Marine:OnCreate()
 
     self.flashlightLastFrame = false
     self.weaponBeforeUseId = Entity.invalidId
-    self.quickThrowKeyActivated = false
 
 end
 
@@ -559,86 +557,6 @@ function Marine:HandleButtons(input)
             end
         end
     end
-end
-
-function Marine:HandleAttacks(input)
-
-    Player.HandleAttacks(self, input)
-
-    if not self:GetIsCommander() and not self:GetIsUsing() then
-        if not self:GetCanAttack() then
-            input.commands = bit.band(input.commands, bit.bnot(Move.GrenadeQuickThrow))
-        end
-
-        if bit.band(input.commands, Move.GrenadeQuickThrow) ~= 0 then
-            if not self.quickThrowKeyActivated then
-                self:QuickThrowGrenade(input)
-            end
-
-            self.quickThrowKeyActivated = true
-        else
-            if self.quickThrowKeyActivated then
-                self:EndQuickThrowGrenade(input)
-            end
-
-            self.quickThrowKeyActivated = false
-        end
-    end
-
-end
-
-local NO_GRENADE = 0
-local CLUSTER_GRENADE = 1
-local GAS_GRENADE = 2
-local PULSE_GRENADE = 3
-
-local function GetGrenadeType(grenade)
-    if grenade:isa("ClusterGrenadeThrower") then return CLUSTER_GRENADE end
-    if grenade:isa("GasGrenadeThrower") then return GAS_GRENADE end
-    if grenade:isa("PulseGrenadeThrower") then return PULSE_GRENADE end
-
-    return NO_GRENADE
-end
-
-local function FindFirstGrenade(inventory)
-
-    for _,v in ipairs(inventory) do
-        if v:isa("GrenadeThrower") then
-            return v
-        end
-    end
-
-    return nil
-end
-
-function Marine:QuickThrowGrenade(input)
-    local validMarine = (self:isa("Marine") or self:isa("JetpackMarine"))
-
-    if validMarine then
-
-        if self:GetActiveWeapon():isa("GrenadeThrower") then
-            self:PrimaryAttack()
-        else
-            local weapons = self.GetWeapons and self:GetWeapons() or 0
-            local grenadeWeapon = weapons and FindFirstGrenade(weapons)
-
-            if grenadeWeapon then
-                grenadeWeapon:SetPullPinOnDeploy()
-                self:SetActiveWeapon(grenadeWeapon.kMapName)
-            end
-        end
-
-    end
-end
-
-function Marine:EndQuickThrowGrenade(input)
-
-    local activeWeapon = self:GetActiveWeapon()
-    if activeWeapon:isa("GrenadeThrower") then
-        self:PrimaryAttackEnd()
-        activeWeapon:SetThrowASAP()
-    end
-
 end
 
 function Marine:GetFlashlightToggled()

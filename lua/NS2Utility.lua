@@ -40,15 +40,14 @@ end
 
 function GetTargetOrigin(target)
 
-    if target.GetEngagementPoint then
-        return target:GetEngagementPoint()
-    end
-
+    local targetOrigin = target:GetOrigin()
     if target.GetModelOrigin then
-        return target:GetModelOrigin()
+        targetOrigin = target:GetModelOrigin()
     end
-
-    return target:GetOrigin()
+    if target.GetEngagementPoint then
+        targetOrigin = target:GetEngagementPoint()
+    end
+    return targetOrigin
 
 end
 
@@ -431,7 +430,6 @@ function GetIsUnitActive(unit, debug)
     local alive = not HasMixin(unit, "Live") or unit:GetIsAlive()
     local isBuilt = not HasMixin(unit, "Construct") or unit:GetIsBuilt()
     local isRecycled = HasMixin(unit, "Recycle") and (unit:GetIsRecycled() or unit:GetIsRecycling())
-    local isConsumed = HasMixin(unit, "Consume") and (unit:GetIsConsumed() or unit:GetIsConsuming())
 
     if debug then
         Print("------------ GetIsUnitActive(%s) -----------------", ToString(unit))
@@ -439,11 +437,10 @@ function GetIsUnitActive(unit, debug)
         Print("alive: %s", ToString(alive))
         Print("isBuilt: %s", ToString(isBuilt))
         Print("isRecycled: %s", ToString(isRecycled))
-        Print("isConsumed: %s", ToString(isConsumed))
         Print("-----------------------------")
     end
 
-    return powered and alive and isBuilt and not isRecycled and not isConsumed
+    return powered and alive and isBuilt and not isRecycled
 
 end
 

@@ -27,7 +27,7 @@ Mine.kMapName = "active_mine"
 
 Mine.kModelName = PrecacheAsset("models/marine/mine/mine.model")
 -- The amount of time until the mine is detonated once armed.
-local kTimeArmed = 0.1
+local kTimeArmed = 0.17
 -- The amount of time it takes other mines to trigger their detonate sequence when nearby mines explode.
 local kTimedDestruction = 0.5
 
@@ -87,8 +87,7 @@ local function SineFalloff(distanceFraction)
     return math.cos(piFraction + math.pi) + 1 
 end
 
-function Mine:Detonate()
-    if not self.active then return end
+local function Detonate(self, armFunc)
 
     local hitEntities = GetEntitiesWithMixinWithinRange("Live", self:GetOrigin(), kMineDetonateRange)
     RadiusDamage(hitEntities, self:GetOrigin(), kMineDetonateRange, kMineDamage, self, false, SineFalloff)
@@ -98,7 +97,7 @@ function Mine:Detonate()
     for _, mine in ipairs(nearbyMines) do
     
         if mine ~= self and not mine.armed then
-            mine:AddTimedCallback(mine.Arm, (math.random() + math.random()) * kTimedDestruction)
+            mine:AddTimedCallback(function() armFunc(mine) end, (math.random() + math.random()) * kTimedDestruction)
         end
         
     end
@@ -117,12 +116,11 @@ function Mine:Detonate()
     
 end
 
-function Mine:Arm()
-    if not self.active then return end
+local function Arm(self)
 
     if not self.armed then
         
-        self:AddTimedCallback(self.Detonate, kTimeArmed)
+        self:AddTimedCallback(function() Detonate(self, Arm) end, kTimeArmed)
         
         self:TriggerEffects("mine_arm")
         
@@ -132,7 +130,7 @@ function Mine:Arm()
     
 end
 
-function Mine:CheckEntityExplodesMine(entity)
+local function CheckEntityExplodesMine(self, entity)
 
     if not self.active then
         return false
@@ -170,7 +168,7 @@ function Mine:CheckEntityExplodesMine(entity)
     if not GetWallBetween(minePos, targetPos, entity) then
     
         -- If this fails, targets can sit in trigger, no "polling" update performed.
-        self:Arm()
+        Arm(self)
         return true
         
     end
@@ -179,11 +177,11 @@ function Mine:CheckEntityExplodesMine(entity)
     
 end
 
-function Mine:CheckAllEntsInTriggerExplodeMine()
+local function CheckAllEntsInTriggerExplodeMine(self)
 
     local ents = self:GetEntitiesInTrigger()
     for e = 1, #ents do
-        self:CheckEntityExplodesMine(ents[e])
+        CheckEntityExplodesMine(self, ents[e])
     end
     
 end
@@ -197,7 +195,12 @@ function Mine:OnInitialized()
         InitMixin(self, InfestationTrackerMixin)
         
         self.active = false
-        self:AddTimedCallback(self.Activate, kMineActiveTime)
+        
+        local activateFunc = function(self)
+                                 self.active = true
+                                 CheckAllEntsInTriggerExplodeMine(self)
+                             end
+        self:AddTimedCallback(activateFunc, kMineActiveTime)
         
         self.armed = false
         self:SetHealth(self:GetMaxHealth())
@@ -214,29 +217,25 @@ function Mine:OnInitialized()
 end
 
 if Server then
-    function Mine:Activate()
-        self.active = true
-        self:CheckAllEntsInTriggerExplodeMine()
-    end
 
     function Mine:OnTouchInfestation()
-        self:Arm()
+        Arm(self)
     end
     
     function Mine:OnStun()
-        self:Arm()
+        Arm(self)
     end
 
     function Mine:OnKill(attacker, doer, point, direction)
-
-        self:Arm()
+    
+        Arm(self)
         
         ScriptActor.OnKill(self, attacker, doer, point, direction)
         
     end
     
     function Mine:OnTriggerEntered(entity)
-        self:CheckEntityExplodesMine(entity)
+        CheckEntityExplodesMine(self, entity)
     end
     
     --
@@ -249,13 +248,13 @@ if Server then
     --
     -- We need to check when there are entities within the trigger area often.
     --
-    function Mine:OnUpdate()
+    function Mine:OnUpdate(dt)
     
         local now = Shared.GetTime()
         self.lastMineUpdateTime = self.lastMineUpdateTime or now
         if now - self.lastMineUpdateTime >= 0.5 then
-
-            self:CheckAllEntsInTriggerExplodeMine()
+        
+            CheckAllEntsInTriggerExplodeMine(self)
             self.lastMineUpdateTime = now
             
         end
@@ -268,7 +267,7 @@ function Mine:GetRequiresPower()
     return false
 end
 
-function Mine:GetCanBeUsed(_, useSuccessTable)
+function Mine:GetCanBeUsed(player, useSuccessTable)
     useSuccessTable.useSuccess = false
 end
 
@@ -287,7 +286,7 @@ function Mine:GetTechButtons(techId)
     
 end
 
-function Mine:GetAttachPointOriginHardcoded()
+function Mine:GetAttachPointOriginHardcoded(attachPointName)
     return self:GetOrigin() + self:GetCoords().yAxis * 0.01
 end
 

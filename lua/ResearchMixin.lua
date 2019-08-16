@@ -155,11 +155,11 @@ local function AbortResearch(self, refundCost)
                 ASSERT(researchNode:GetResearching() or researchNode:GetIsUpgrade())
                 
                 researchNode:ClearResearching()
-
+                
                 if self.OnResearchCancel then
                     self:OnResearchCancel(self.researchingId)
                 end
-
+                
                 self:ClearResearch()
                 
                 team:GetTechTree():SetTechNodeChanged(researchNode)
@@ -178,6 +178,7 @@ function ResearchMixin:OnKill()
 end 
 
 function ResearchMixin:ClearResearch()
+
     RemoveResearchSupply(self, self.researchingId)
     self.researchingId = kTechId.None
     self.researchingPlayerId = Entity.invalidId
@@ -265,19 +266,13 @@ function ResearchMixin:PerformAction(techNode, _)
 
     -- Process Cancel of research or upgrade.
     if techNode.techId == kTechId.Cancel then
-
+    
         if self:GetIsResearching() then
             AbortResearch(self, true)
         end
-
+        
     end
     
-end
-
-function ResearchMixin:CancelResearch()
-    if self:GetIsResearching() then
-        AbortResearch(self, true)
-    end
 end
 
 function ResearchMixin:OnEntityChange(oldId, newId)

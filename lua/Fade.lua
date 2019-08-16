@@ -49,7 +49,7 @@ Fade.YExtents = 1.05
 Fade.kHealth = kFadeHealth
 Fade.kArmor = kFadeArmor
 
-Fade.kAdrenalineEnergyRecuperationRate = 13.0
+Fade.kAdrenalineEnergyRecuperationRate = 18.0
 
 Fade.kBlinkGroundFriction = 3
 Fade.kGroundFrictionBase = 9
@@ -68,8 +68,9 @@ local kShadowStepForce = 4
 local kShadowStepSpeed = 30
 
 local kMaxSpeed = 6.2
-local kBlinkMaxSpeed = 25
+local kBlinkSpeed = 14
 local kBlinkAcceleration = 40
+local kBlinkAddAcceleration = 1
 local kMetabolizeAnimationDelay = 0.65
 
 -- Delay before you can blink again after a blink.
@@ -312,6 +313,7 @@ function Fade:GetGroundFriction()
         local frac = timeSinceLastEthereal / Fade.kGroundFrictionPostBlinkDelay
         return Fade.kGroundFrictionPostBlink + (Fade.kGroundFrictionBase - Fade.kGroundFrictionPostBlink) * frac
     end
+
     return Fade.kGroundFrictionBase
 
 end
@@ -321,7 +323,16 @@ function Fade:GetAirControl()
 end
 
 function Fade:GetAirFriction()
-    return (self:GetIsBlinking() or self:GetRecentlyShadowStepped()) and 0 or 0.17
+    if self:GetIsBlinking() then
+        return 0
+    end
+
+    return 0.17
+end
+
+
+function Fade:GetAirFriction()
+    return (self:GetIsBlinking() or self:GetRecentlyShadowStepped()) and 0 or (0.17  - (GetHasCelerityUpgrade(self) and self:GetSpurLevel() or 0) * 0.01)
 end 
 
 function Fade:ModifyVelocity(input, velocity, deltaTime)
@@ -329,31 +340,23 @@ function Fade:ModifyVelocity(input, velocity, deltaTime)
     if self:GetIsBlinking() then
     
         local wishDir = self:GetViewCoords().zAxis
-        local maxSpeedTable = { maxSpeed = kBlinkMaxSpeed }
+        local maxSpeedTable = { maxSpeed = kBlinkSpeed }
         self:ModifyMaxSpeed(maxSpeedTable, input)  
         local prevSpeed = velocity:GetLength()
-
-        -- the following block will set the acceleration to either the minimum blink ethereal force speed or
-        -- the speed a player has built up over successive blinks. Then it will make sure that doesn't exceed
-        -- an absolute max.
-        local desiredSpeed = math.max(prevSpeed, kEtherealForce)
-        local speedCeiling = math.min(maxSpeedTable.maxSpeed, desiredSpeed)
-        --local maxSpeed = math.max(prevSpeed, maxSpeedTable.maxSpeed)
-        --maxSpeed = math.min(kBlinkMaxSpeed, maxSpeed)
-
-        --velocity:Add(velocity)
-        --velocity:Add(wishDir * 17)
+        local maxSpeed = math.max(prevSpeed, maxSpeedTable.maxSpeed)
+        local maxSpeed = math.min(25, maxSpeed)    
+        
         velocity:Add(wishDir * kBlinkAcceleration * deltaTime)
         
-        if velocity:GetLength() > speedCeiling then
+        if velocity:GetLength() > maxSpeed then
 
             velocity:Normalize()
-            velocity:Scale(speedCeiling)
+            velocity:Scale(maxSpeed)
             
         end 
         
         -- additional acceleration when holding down blink to exceed max speed
-        --velocity:Add(wishDir * kBlinkAddAcceleration * deltaTime)
+        velocity:Add(wishDir * kBlinkAddAcceleration * deltaTime)
         
     end
 
@@ -381,7 +384,7 @@ function Fade:GetMaxSpeed(possible)
     end
     
     if self:GetIsBlinking() then
-        return kBlinkMaxSpeed
+        return kBlinkSpeed
     end
     
     -- Take into account crouching.

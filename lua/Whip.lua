@@ -33,7 +33,6 @@ Script.Load("lua/TargetCacheMixin.lua")
 Script.Load("lua/DamageMixin.lua")
 -- Handle movement
 Script.Load("lua/AlienStructureMoveMixin.lua")
-Script.Load("lua/ConsumeMixin.lua")
 
 
 class 'Whip' (AlienStructure)
@@ -83,7 +82,6 @@ AddMixinNetworkVars(IdleMixin, networkVars)
 AddMixinNetworkVars(DoorMixin, networkVars)
 AddMixinNetworkVars(DamageMixin, networkVars)
 AddMixinNetworkVars(AlienStructureMoveMixin, networkVars)
-AddMixinNetworkVars(ConsumeMixin, networkVars)
 
 if Server then
 
@@ -103,7 +101,6 @@ function Whip:OnCreate()
     InitMixin(self, OrdersMixin, { kMoveOrderCompleteDistance = kAIMoveOrderCompleteDistance })
     InitMixin(self, DamageMixin)
     InitMixin(self, AlienStructureMoveMixin, { kAlienStructureMoveSound = Whip.kWalkingSound })
-    InitMixin(self, ConsumeMixin)
     
     self.attackYaw = 0
     
@@ -295,20 +292,6 @@ function Whip:OnOverrideDoorInteraction(inEntity)
     return true, 4
 end
 
-function Whip:OnConsumeTriggered()
-    local currentOrder = self:GetCurrentOrder()
-    if currentOrder ~= nil then
-        self:CompletedCurrentOrder()
-        self:ClearOrders()
-    end
-end
-
-function Whip:OnOrderGiven(order)
-    --This will cancel Consume if it is running.
-    if self:GetIsConsuming() then
-        self:CancelResearch()
-    end
-end
 
 -- CQ: EyePos seems to be somewhat hackish; used in several places but not owned anywhere... predates Mixins
 function Whip:GetEyePos()
@@ -325,7 +308,7 @@ end
 function Whip:GetTechButtons(techId)
 
     local techButtons = { kTechId.Slap, kTechId.Move, kTechId.None, kTechId.None,
-                    kTechId.None, kTechId.None, kTechId.None, kTechId.Consume }
+                    kTechId.None, kTechId.None, kTechId.None, kTechId.None }
     
     if self:GetIsMature() then
         techButtons[1] = kTechId.WhipBombard

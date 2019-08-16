@@ -119,11 +119,6 @@ local kRecycleMessage =
     resGained = "integer"
 }
 
-local kConsumeMessage =
-{
-    techId = "enum kTechId"
-}
-
 function BuildRecycleMessage(resLost, techId, resGained)
 
     local t = {}
@@ -137,7 +132,6 @@ function BuildRecycleMessage(resLost, techId, resGained)
 end
 
 Shared.RegisterNetworkMessage( "Recycle", kRecycleMessage )
-Shared.RegisterNetworkMessage( "Consume", kConsumeMessage )
 
 -- empty network message for game reset
 Shared.RegisterNetworkMessage( "Reset" )

@@ -140,10 +140,6 @@ function Clog:GetIsFlameAble()
     return true
 end
 
-function Clog:GetIsFlameableMultiplier()
-    return 7
-end
-
 function Clog:GetReceivesStructuralDamage()
     return true
 end

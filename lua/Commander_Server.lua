@@ -275,7 +275,7 @@ function Commander:ProcessTechTreeActionForEntity(techNode, position, normal, is
             elseif(techNode:GetIsPlasmaManufacture()) then
                 success = self:AttemptToResearchOrUpgrade(techNode, entity)
             end
-
+            
             if(success and cost ~= nil) then
             
                 self:AddResources(-cost)
@@ -496,6 +496,8 @@ function Commander:ProcessTechTreeAction(techId, pickVec, orientation, worldCoor
         return false
     end
     
+    local techNode = self:GetTechTree():GetTechNode(techId)
+    
     if techNode == nil then
         return false
     end 
@@ -580,7 +582,7 @@ function Commander:ProcessTechTreeAction(techId, pickVec, orientation, worldCoor
             
                 -- For every selected entity, process this desired action. For some actions (research), only
                 -- process once, not on every entity.
-                for _, selectedEntity in ipairs(sortedList) do
+                for index, selectedEntity in ipairs(sortedList) do
                 
                     local actionSuccess = false
                     local keepProcessing = false
@@ -618,7 +620,7 @@ function Commander:ProcessTechTreeAction(techId, pickVec, orientation, worldCoor
         end
                 
         -- inform the team
-        team:OnCommanderAction(techId)
+        self:GetTeam():OnCommanderAction(techId)
     end
     
     -- Tell client result of cast

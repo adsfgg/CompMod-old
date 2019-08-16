@@ -51,7 +51,6 @@ Script.Load("lua/SupplyUserMixin.lua")
 Script.Load("lua/BiomassMixin.lua")
 Script.Load("lua/OrdersMixin.lua")
 Script.Load("lua/IdleMixin.lua")
-Script.Load("lua/ConsumeMixin.lua")
 
 class 'Shift' (ScriptActor)
 
@@ -123,7 +122,6 @@ AddMixinNetworkVars(DissolveMixin, networkVars)
 AddMixinNetworkVars(SelectableMixin, networkVars)
 AddMixinNetworkVars(OrdersMixin, networkVars)
 AddMixinNetworkVars(IdleMixin, networkVars)
-AddMixinNetworkVars(ConsumeMixin, networkVars)
 
 local function GetIsTeleport(techId)
 
@@ -257,7 +255,6 @@ function Shift:OnCreate()
     InitMixin(self, PathingMixin)
     InitMixin(self, BiomassMixin)
     InitMixin(self, OrdersMixin, { kMoveOrderCompleteDistance = kAIMoveOrderCompleteDistance })
-    InitMixin(self, ConsumeMixin)
     
     ResetShiftButtons(self)
     
@@ -429,13 +426,15 @@ function Shift:GetTechButtons(techId)
     else
 
         techButtons = { kTechId.ShiftEcho, kTechId.Move, kTechId.ShiftEnergize, kTechId.None, 
-                        kTechId.None, kTechId.None, kTechId.None, kTechId.Consume }
+                        kTechId.None, kTechId.None, kTechId.None, kTechId.None }
                         
         if self.moving then
             techButtons[2] = kTechId.Stop
-        end
+        end 
 
-    end
+    end           
+                          
+
 
     return techButtons   
 
@@ -451,21 +450,6 @@ end
 
 function Shift:GetMaxSpeed()
     return Shift.kMoveSpeed
-end
-
-function Shift:OnConsumeTriggered()
-    local currentOrder = self:GetCurrentOrder()
-    if currentOrder ~= nil then
-        self:CompletedCurrentOrder()
-        self:ClearOrders()
-    end
-end
-
-function Shift:OnOrderGiven(order)
-    --This will cancel Consume if it is running.
-    if self:GetIsConsuming() then
-        self:CancelResearch()
-    end
 end
 
 function Shift:OnOrderChanged()

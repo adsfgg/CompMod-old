@@ -67,8 +67,6 @@ local networkVars =
     destLocationId = "entityid",
     clogNearMouth = "boolean",
     skipOpenAnimation = "boolean",
-    --timeResearchStarted is used to synchronize the two sides of the tunnels and their research state.
-    timeResearchStarted = "time",
     --variant = "enum kAlienTunnelVariants"
 }
 
@@ -141,7 +139,6 @@ function TunnelEntrance:OnCreate()
     self.destLocationId = Entity.invalidId
     self.otherEntranceId = Entity.invalidId
     self.clogNearMouth = false
-    self.timeResearchStarted = 0
     
 end
 
@@ -183,50 +180,13 @@ function TunnelEntrance:OnResearchComplete(techId)
         self:SetDesiredInfestationRadius(self:GetInfestationMaxRadius())
 
         local otherEntrance = self:GetOtherEntrance()
-        if otherEntrance and not otherEntrance:GetIsInfested() then
-            otherEntrance:CancelResearch()
+        if otherEntrance then
             otherEntrance:UpgradeToTechId(kTechId.InfestedTunnel)
             otherEntrance:SetDesiredInfestationRadius(self:GetInfestationMaxRadius())
         end
     end
 
     return success
-
-end
-
-function TunnelEntrance:GetTunnelTimeResearchStarted()
-    return self.timeResearchStarted
-end
-
-function TunnelEntrance:OnResearch(researchId)
-
-    --The InfestedTunnel research has started. Let's track this event and tell our other tunnel to do the same (if the other
-    -- tunnel wasn't the one to already tell us first! The timeResearchStarted variable keeps us from stackOverflowing each
-    -- tunnel telling the other back and forth to start research.
-    if researchId == kTechId.UpgradeToInfestedTunnel then
-        self.timeResearchStarted = Shared.GetTime()
-
-        local otherEntrance = self:GetOtherEntrance()
-        if otherEntrance and (otherEntrance:GetTunnelTimeResearchStarted() == 0) then
-            otherEntrance:SetResearching(self:GetTeam():GetTechTree():GetTechNode(researchId), self:GetTeam():GetCommander())
-        end
-    end
-
-end
-
-function TunnelEntrance:OnResearchCancel(researchId)
-
-    --The InfestedTunnel research has been cancelled. Let's track this event and tell our other tunnel to do the same (if the other
-    -- tunnel wasn't the one to already tell us first! The timeResearchStarted variable keeps us from stackOverflowing each
-    -- tunnel telling the other back and forth to start research.
-    if researchId == kTechId.UpgradeToInfestedTunnel then
-        self.timeResearchStarted = 0
-
-        local otherEntrance = self:GetOtherEntrance()
-        if otherEntrance and (otherEntrance:GetTunnelTimeResearchStarted() ~= 0) then
-            otherEntrance:CancelResearch()
-        end
-    end
 
 end
 
@@ -359,7 +319,7 @@ function TunnelEntrance:GetCanBuildOtherEnd()
 end
 
 function TunnelEntrance:GetCanTriggerCollapse()
-    return self:GetIsBuilt() and not self:GetIsCollapsing() and not self:GetIsResearching()
+    return self:GetIsBuilt() and not self:GetIsCollapsing()
 end
 
 function TunnelEntrance:GetCanRelocate()
@@ -368,7 +328,7 @@ end
 
 function TunnelEntrance:GetCanUpgradeToInfestedTunnel()
     local otherEntrance = self:GetOtherEntrance()
-    if (otherEntrance and otherEntrance:GetIsResearching()) or self:GetIsResearching() then
+    if otherEntrance and otherEntrance:GetIsResearching() then
         return false
     end
 
@@ -383,8 +343,9 @@ function TunnelEntrance:GetTechButtons()
     if self:GetCanBuildOtherEnd() then
         buttons[1] = kTechId.TunnelExit
     end
+    
     if self:GetCanTriggerCollapse() then
-        buttons[7] = kTechId.TunnelCollapse
+        buttons[8] = kTechId.TunnelCollapse
     end
     
     if self:GetCanRelocate() then
@@ -410,7 +371,7 @@ function TunnelEntrance:GetTechAllowed(techId)
 
         allowed = numHives > numTunnels
     elseif techId == kTechId.UpgradeToInfestedTunnel then
-        allowed = self:GetCanUpgradeToInfestedTunnel() and GetIsUnitActive(self)
+        allowed = self:GetCanUpgradeToInfestedTunnel()
     end
 
     return allowed, canAfford
@@ -622,12 +583,6 @@ if Server then
         
         -- If the tunnel entrance has another (completed) tunnel entrance, ensure a tunnel connects the two together.
         local otherEntrance = self:GetOtherEntrance()
-
-        -- If the other side started the infestation research before this side finished building, we want to set our progress to match.
-        if otherEntrance and otherEntrance:GetIsResearching() then
-            self.researchProgress = otherEntrance.researchProgress
-        end
-
         if otherEntrance and otherEntrance:GetIsBuilt() then
             
             assert(self:GetTunnelEntity() == nil) -- this TunnelEntrance should not already have a tunnel assigned to it.

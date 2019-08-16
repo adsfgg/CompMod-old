@@ -32,9 +32,9 @@ kRailgunPointValue = 10
         
 kSkulkHealth = 75    kSkulkArmor = 10    kSkulkPointValue = 5    kSkulkHealthPerBioMass = 3
 kGorgeHealth = 160   kGorgeArmor = 75    kGorgePointValue = 7    kGorgeHealthPerBioMass = 2
-kLerkHealth = 180    kLerkArmor = 30     kLerkPointValue = 15    kLerkHealthPerBioMass = 2
+kLerkHealth = 150    kLerkArmor = 45     kLerkPointValue = 15    kLerkHealthPerBioMass = 2
 kFadeHealth = 250    kFadeArmor = 80     kFadePointValue = 20    kFadeHealthPerBioMass = 5
-kOnosHealth = 700    kOnosArmor = 450    kOnosPointValue = 30    kOnosHealtPerBioMass = 50
+kOnosHealth = 900    kOnosArmor = 450    kOnosPointValue = 30    kOnosHealtPerBioMass = 30
 
 kMarineWeaponHealth = 400
         
@@ -57,9 +57,9 @@ kRecyclePaybackScalar = 0.75
 
 kCarapaceHealReductionPerLevel = 0.0
 
-kSkulkArmorFullyUpgradedAmount = 25
+kSkulkArmorFullyUpgradedAmount = 30
 kGorgeArmorFullyUpgradedAmount = 100
-kLerkArmorFullyUpgradedAmount = 50
+kLerkArmorFullyUpgradedAmount = 75
 kFadeArmorFullyUpgradedAmount = 120
 kOnosArmorFullyUpgradedAmount = 650
 
@@ -88,7 +88,7 @@ kMatureHiveHealth = 6000 kMatureHiveArmor = 1400
         
 kDrifterHealth = 300    kDrifterArmor = 20    kDrifterPointValue = 5
 kMACHealth = 300    kMACArmor = 50    kMACPointValue = 2
-kMineHealth = 40    kMineArmor = 5    kMinePointValue = 1
+kMineHealth = 20    kMineArmor = 5    kMinePointValue = 1
         
 kExtractorHealth = 2400 kExtractorArmor = 1050 kExtractorPointValue = 15
 kExtractorArmorAddAmount = 700 -- not used
@@ -98,8 +98,8 @@ kHarvesterHealth = 2000 kHarvesterArmor = 200 kHarvesterPointValue = 15
 kMatureHarvesterHealth = 2300 kMatureHarvesterArmor = 320
 
 kSentryHealth = 500    kSentryArmor = 100    kSentryPointValue = 2
-kARCHealth = 2600    kARCArmor = 400    kARCPointValue = 5
-kARCDeployedHealth = 2600    kARCDeployedArmor = 0
+kARCHealth = 3000    kARCArmor = 200    kARCPointValue = 5
+kARCDeployedHealth = 3000    kARCDeployedArmor = 0
         
 kShellHealth = 600     kShellArmor = 150     kShellPointValue = 12
 kMatureShellHealth = 700     kMatureShellArmor = 200

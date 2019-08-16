@@ -1971,8 +1971,7 @@ function Player:HandleButtons(input)
                                                                    Move.SelectNextWeapon, Move.SelectPrevWeapon, Move.Reload,
                                                                    Move.Taunt, Move.Weapon1, Move.Weapon2,
                                                                    Move.Weapon3, Move.Weapon4, Move.Weapon5, 
-                                                                   Move.Crouch, Move.Drop, Move.MovementModifier,
-                                                                   Move.GrenadeQuickThrow, Move.QuickSwitch)))
+                                                                   Move.Crouch, Move.Drop, Move.MovementModifier)))
                                                                    
         input.move.x = 0
         input.move.y = 0
@@ -2541,7 +2540,7 @@ function Player:UpdateArmorAmount(armorLevel)
     if newMaxArmor ~= self.maxArmor then    
     
         self.maxArmor = newMaxArmor
-        self:SetArmor(self.maxArmor * armorPercent, true)
+        self:SetArmor(self.maxArmor * armorPercent)
         
     end
     

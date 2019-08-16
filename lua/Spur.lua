@@ -36,7 +36,6 @@ Script.Load("lua/HiveVisionMixin.lua")
 Script.Load("lua/CombatMixin.lua")
 Script.Load("lua/CommanderGlowMixin.lua")
 Script.Load("lua/BiomassMixin.lua")
-Script.Load("lua/ConsumeMixin.lua")
 
 class 'Spur' (ScriptActor)
 
@@ -67,7 +66,6 @@ AddMixinNetworkVars(FireMixin, networkVars)
 AddMixinNetworkVars(MaturityMixin, networkVars)
 AddMixinNetworkVars(CombatMixin, networkVars)
 AddMixinNetworkVars(SelectableMixin, networkVars)
-AddMixinNetworkVars(ConsumeMixin, networkVars)
 
 function Spur:OnCreate()
 
@@ -96,7 +94,6 @@ function Spur:OnCreate()
     InitMixin(self, MaturityMixin)
     InitMixin(self, CombatMixin)
     InitMixin(self, BiomassMixin)
-    InitMixin(self, ConsumeMixin)
     
     if Server then
         InitMixin(self, InfestationTrackerMixin)
@@ -202,15 +199,6 @@ function Spur:OverrideHintString(hintString)
     
     return hintString
     
-end
-
-function Spur:GetTechButtons(techId)
-
-    local techButtons = { kTechId.None, kTechId.None, kTechId.None, kTechId.None,
-                          kTechId.None, kTechId.None, kTechId.None, kTechId.Consume }
-
-    return techButtons
-
 end
 
 Shared.LinkClassToMap("Spur", Spur.kMapName, networkVars)

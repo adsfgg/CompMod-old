@@ -22,7 +22,6 @@ Script.Load("lua/MapBlipMixin.lua")
 Script.Load("lua/CommanderGlowMixin.lua")
 Script.Load("lua/BiomassMixin.lua")
 Script.Load("lua/IdleMixin.lua")
-Script.Load("lua/ConsumeMixin.lua")
 Script.Load("lua/AlienStructureVariantMixin.lua")
 
 class 'Harvester' (ResourceTower)
@@ -44,7 +43,6 @@ AddMixinNetworkVars(MaturityMixin, networkVars)
 AddMixinNetworkVars(HiveVisionMixin, networkVars)
 AddMixinNetworkVars(IdleMixin, networkVars)
 AddMixinNetworkVars(AlienStructureVariantMixin, networkVars)
-AddMixinNetworkVars(ConsumeMixin, networkVars)
 
 function Harvester:OnCreate()
 
@@ -60,7 +58,6 @@ function Harvester:OnCreate()
     InitMixin(self, DissolveMixin)
     InitMixin(self, MaturityMixin)
     InitMixin(self, BiomassMixin)
-    InitMixin(self, ConsumeMixin)
     
     if Server then
         InitMixin(self, InfestationTrackerMixin)
@@ -168,6 +165,10 @@ end
 
 function Harvester:GetHealthbarOffset()
     return 2.2
+end
+
+function Harvester:GetOffInfestationHurtPercentPerSecond()
+    return 0.0133 -- So it takes 90 seconds to die off infestation
 end
 
 function Harvester:GetCanBeUsed(player, useSuccessTable)

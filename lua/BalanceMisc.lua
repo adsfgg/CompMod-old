@@ -189,7 +189,7 @@ kCystMaxParentRange = 31 -- distance from a cyst another cyst can be placed
 kCystRedeployRange = 7 -- distance from existing Cysts that will cause redeployment
 
 -- Damage over time that all cysts take when not connected
-kCystUnconnectedDamage = 20
+kCystUnconnectedDamage = 12
 
 -- Light shaking constants
 kOnosLightDistance = 50
@@ -311,18 +311,16 @@ kDropStructureEnergyCost = 15
 kMinWebLength = 0.5
 kMaxWebLength = 8
 
-kMACSupply = 5
-kArmorySupply = 0
-kObservatorySupply = 30
-kARCSupply = 25
+kMACSupply = 10
+kArmorySupply = 5
+kARCSupply = 35
 kSentrySupply = 10
-kSentryBatterySupply = 15
-kRoboticsFactorySupply = 0
+kRoboticsFactorySupply = 5
 kInfantryPortalSupply = 0
 kPhaseGateSupply = 0
 
-kDrifterSupply = 5
-kWhipSupply = 30
-kCragSupply = 25
-kShadeSupply = 25
-kShiftSupply = 25
+kDrifterSupply = 10
+kWhipSupply = 5
+kCragSupply = 5
+kShadeSupply = 5
+kShiftSupply = 5

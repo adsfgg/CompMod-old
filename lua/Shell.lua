@@ -38,7 +38,6 @@ Script.Load("lua/HiveVisionMixin.lua")
 Script.Load("lua/CombatMixin.lua")
 Script.Load("lua/CommanderGlowMixin.lua")
 Script.Load("lua/BiomassMixin.lua")
-Script.Load("lua/ConsumeMixin.lua")
 
 class 'Shell' (ScriptActor)
 
@@ -70,7 +69,6 @@ AddMixinNetworkVars(FireMixin, networkVars)
 AddMixinNetworkVars(MaturityMixin, networkVars)
 AddMixinNetworkVars(CombatMixin, networkVars)
 AddMixinNetworkVars(SelectableMixin, networkVars)
-AddMixinNetworkVars(ConsumeMixin, networkVars)
 
 function Shell:OnCreate()
 
@@ -100,7 +98,6 @@ function Shell:OnCreate()
     InitMixin(self, MaturityMixin)
     InitMixin(self, CombatMixin)
     InitMixin(self, BiomassMixin)
-    InitMixin(self, ConsumeMixin)
     
     if Server then
         InitMixin(self, InfestationTrackerMixin)
@@ -206,15 +203,6 @@ function Shell:OverrideHintString(hintString)
     
     return hintString
     
-end
-
-function Shell:GetTechButtons(techId)
-
-    local techButtons = { kTechId.None, kTechId.None, kTechId.None, kTechId.None,
-                          kTechId.None, kTechId.None, kTechId.None, kTechId.Consume }
-
-    return techButtons
-
 end
 
 Shared.LinkClassToMap("Shell", Shell.kMapName, networkVars)

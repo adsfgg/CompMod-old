@@ -41,7 +41,6 @@ local _keyBinding =
     Weapon3 = InputKey.Num3,
     Weapon4 = InputKey.Num4,
     Weapon5 = InputKey.Num5,
-    GrenadeQuickThrow = InputKey.B,
     ToggleConsole = InputKey.Grave,
     ToggleFlashlight = InputKey.F,
     ReadyRoom = InputKey.F4,
@@ -338,9 +337,9 @@ local function GenerateMove()
         if _keyState[ _keyBinding.Buy ] then
             move.commands = bit.bor(move.commands, Move.Buy)
         end
-        --if _keyState[ _keyBinding.Eject ] then
-        --    move.commands = bit.bor(move.commands, Move.Eject)
-        --end
+        if _keyState[ _keyBinding.Eject ] then
+            move.commands = bit.bor(move.commands, Move.Eject)
+        end
         
         if _keyState[ _keyBinding.MoveForward ] then
             move.move.z = move.move.z + 1
@@ -378,9 +377,9 @@ local function GenerateMove()
             move.commands = bit.bor(move.commands, Move.ScrollRight)
         end     
         
-        --if _keyPressed[ _keyBinding.ToggleRequest ] then
-        --    move.commands = bit.bor(move.commands, Move.ToggleRequest)
-        --end
+        if _keyPressed[ _keyBinding.ToggleRequest ] then
+            move.commands = bit.bor(move.commands, Move.ToggleRequest)
+        end
         if _keyPressed[ _keyBinding.ToggleSayings ] then
             move.commands = bit.bor(move.commands, Move.ToggleSayings)
         end
@@ -426,9 +425,6 @@ local function GenerateMove()
         end
         if _keyPressed[ _keyBinding.Weapon5 ] then
             move.commands = bit.bor(move.commands, Move.Weapon5)
-        end
-        if _keyState[ _keyBinding.GrenadeQuickThrow ] then
-            move.commands = bit.bor(move.commands, Move.GrenadeQuickThrow)
         end
         if _keyPressed[ _keyBinding.QuickSwitch ] then
             move.commands = bit.bor(move.commands, Move.QuickSwitch)

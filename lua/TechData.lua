@@ -335,17 +335,6 @@ function BuildTechData()
         },
 
         {
-            [kTechDataId] = kTechId.Consume,
-            [kTechDataDisplayName] = "CONSUME",
-            [kTechDataCostKey] = 0,
-            [kTechIDShowEnables] = false,
-            [kTechDataResearchTimeKey] = kConsumeTime,
-            [kTechDataHotkey] = Move.R,
-            [kTechDataTooltipInfo] = "CONSUME_TOOLTIP",
-            [kTechDataMenuPriority] = 2,
-        },
-
-        {
             [kTechDataId] = kTechId.Heal,
             [kTechDataDisplayName] = "HEAL",
             [kTechDataOrderSound] = AlienCommander.kHealTarget,
@@ -694,7 +683,6 @@ function BuildTechData()
             [kTechDataModel] = AmmoPack.kModelName,
             [kTechDataTooltipInfo] = "AMMO_PACK_TOOLTIP",
             [kTechDataSpawnHeightOffset] = kCommanderDropSpawnHeight,
-            [kCommanderSelectRadius] = 0.375,
             [kTechDataOverrideCoordsMethod] = AlignDroppack,
         },
 
@@ -723,7 +711,6 @@ function BuildTechData()
             [kTechDataModel] = CatPack.kModelName,
             [kTechDataTooltipInfo] = "CAT_PACK_TOOLTIP",
             [kTechDataSpawnHeightOffset] = kCommanderDropSpawnHeight,
-            [kCommanderSelectRadius] = 0.375,
             [kTechDataOverrideCoordsMethod] = AlignDroppack,
         },
 
@@ -954,7 +941,6 @@ function BuildTechData()
 
         {
             [kTechDataId] = kTechId.SentryBattery,
-            [kTechDataSupply] = kSentryBatterySupply,
             [kTechDataBuildRequiresMethod] = GetRoomHasNoSentryBattery,
             [kTechDataBuildMethodFailedMessage] = "COMMANDERERROR_ONLY_ONE_BATTERY_PER_ROOM",
             [kTechDataHint] = "SENTRY_BATTERY_HINT",
@@ -1022,7 +1008,6 @@ function BuildTechData()
 
         {
             [kTechDataId] = kTechId.Observatory,
-            [kTechDataSupply] = kObservatorySupply,
             [kTechDataHint] = "OBSERVATORY_HINT",
             [kTechDataGhostModelClass] = "MarineGhostModel",
             [kTechDataRequiresPower] = true,
@@ -1992,15 +1977,6 @@ function BuildTechData()
         },
 
         -- tier 1
-
-        {
-            [kTechDataId] = kTechId.Roost,
-            [kTechDataCategory] = kTechId.Lerk,
-            [kTechDataCostKey] = kRoostResearchCost,
-            [kTechDataResearchTimeKey] = kRoostResearchTime,
-            [kTechDataDisplayName] = "ROOST_ABILITY",
-            [kTechDataTooltipInfo] = "ROOST_TOOLTIP",
-        },
         {
             [kTechDataId] = kTechId.Umbra,
             [kTechDataCategory] = kTechId.Lerk,

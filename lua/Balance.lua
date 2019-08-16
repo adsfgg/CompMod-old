@@ -93,9 +93,9 @@ kWelderTechResearchCost = 0
 kWelderCost = 2
 kWelderDropCost = 3
 
-kPulseGrenadeDamageRadius = 3
+kPulseGrenadeDamageRadius = 6
 kPulseGrenadeEnergyDamageRadius = 10
-kPulseGrenadeDamage = 50
+kPulseGrenadeDamage = 110
 kPulseGrenadeEnergyDamage = 0
 kPulseGrenadeDamageType = kDamageType.Normal
 
@@ -103,7 +103,7 @@ kClusterGrenadeDamageRadius = 10
 kClusterGrenadeDamage = 55
 kClusterFragmentDamageRadius = 6
 kClusterFragmentDamage = 20
-kClusterGrenadeDamageType = kDamageType.ClusterFlame
+kClusterGrenadeDamageType = kDamageType.Flame
 
 kNerveGasDamagePerSecond = 50
 kNerveGasDamageType = kDamageType.NerveGas
@@ -151,7 +151,7 @@ kResearchBioMassOneCost = 15
 kBioMassOneTime = 25
 kResearchBioMassTwoCost = 20
 kBioMassTwoTime = 40
-kResearchBioMassThreeCost = 40
+kResearchBioMassThreeCost = 60
 kBioMassThreeTime = 60
 kResearchBioMassFourCost = 100
 kBioMassFourTime = 80
@@ -279,7 +279,7 @@ kShotgunFireRate = 0.88
 kShotgunDamage = 11.33
 kShotgunDamageType = kDamageType.Normal
 kShotgunClipSize = 6
-kShotgunBulletsPerShot = 14
+kShotgunBulletsPerShot = 17
 kShotgunSpreadDistance = 10 --Gets used as z-axis value for spread vectors before normalization
 
 kNadeLauncherClipSize = 4
@@ -319,8 +319,8 @@ kMACAttackDamageType = kDamageType.Normal
 kMACAttackFireDelay = 0.6
 
 
-kMineDamage = 150
-kMineDamageType = kDamageType.Normal
+kMineDamage = 125
+kMineDamageType = kDamageType.Light
 
 kSentryAttackDamageType = kDamageType.Normal
 kSentryAttackBaseROF = .15
@@ -330,7 +330,7 @@ kConfusedSentryBaseROF = 2.0
 
 kSentryDamage = 5
 
-kARCDamage = 530
+kARCDamage = 675
 kARCDamageType = kDamageType.Splash -- splash damage hits friendly arcs as well
 kARCRange = 26
 kARCMinRange = 7
@@ -414,17 +414,17 @@ kLerkBiteDamageType = kDamageType.Normal
 
 kUmbraEnergyCost = 27
 kUmbraMaxRange = 17
-kUmbraDuration = 2.5
+kUmbraDuration = 4
 kUmbraRadius = 4
 
-kUmbraShotgunModifier = 0.8
-kUmbraBulletModifier = 0.8
-kUmbraMinigunModifier = 0.8
-kUmbraRailgunModifier = 0.8
-kUmbraGrenadeModifier = 0.8
+kUmbraShotgunModifier = 0.75
+kUmbraBulletModifier = 0.75
+kUmbraMinigunModifier = 0.75
+kUmbraRailgunModifier = 0.75
+kUmbraGrenadeModifier = 0.75
 
-kSpikeSpread = Math.Radians(3.6)
-kSpikeSize = 0.045
+kSpikeSpread = Math.Radians(3.1)
+kSpikeSize = 0.06
 kSpikeDamage = 5
 kSpikeDamageType = kDamageType.Puncture
 kSpikeEnergyCost = 1.4
@@ -462,7 +462,7 @@ kBoneShieldCooldown = 16
 kBoneShieldMinimumEnergyNeeded = 0
 kBoneShieldMinimumFuel = 0.15
 kBoneShieldMaxDuration = 8
-kBoneShieldMoveFraction = 0.682 -- ~4.5 m/s
+kBoneShieldMoveFraction = 0.456 --46% max-speed
 kBoneShieldInnateCombatRegenRate = 0
 kBoneshieldPreventInnateRegen = true
 kBoneShieldPreventEnergize = false
@@ -508,7 +508,6 @@ kUpgradeLevelDelayAtAlienRepawn = 4
 
 -- BUILD/RESEARCH TIMES
 kRecycleTime = 12
-kConsumeTime = kRecycleTime
 kArmoryBuildTime = 12
 kAdvancedArmoryResearchTime = 90
 kWeaponsModuleAddonTime = 40
@@ -640,16 +639,14 @@ kBileBombResearchCost = 15
 kBileBombResearchTime = 40
 kShadowStepResearchCost = 15
 kShadowStepResearchTime = 40
-kRoostResearchCost = 10
-kRoostResearchTime = 30
 kUmbraResearchCost = 20
 kUmbraResearchTime = 45
 kBoneShieldResearchCost = 20
 kBoneShieldResearchTime = 40
 kSporesResearchCost = 20
 kSporesResearchTime = 60
-kStompResearchCost = 35
-kStompResearchTime = 90
+kStompResearchCost = 25
+kStompResearchTime = 60
 kStabResearchCost = 25
 kStabResearchTime = 60
 kMetabolizeEnergyResearchCost = 20
@@ -670,11 +667,11 @@ kNanoShieldDamageReductionDamage = 0.68
 
 kPowerSurgeResearchCost = 15
 kPowerSurgeResearchTime = 45
-kPowerSurgeCooldown = 4
+kPowerSurgeCooldown = 10
 kPowerSurgeDuration = 10
-kPowerSurgeCost = 2
-kPowerSurgeDamage = 0
-kPowerSurgeDamageRadius = 0
+kPowerSurgeCost = 3
+kPowerSurgeDamage = 25
+kPowerSurgeDamageRadius = 6
 kPowerSurgeElectrifiedDuration = 6
 
 kArmoryInitialEnergy = 100  kArmoryMaxEnergy = 150
