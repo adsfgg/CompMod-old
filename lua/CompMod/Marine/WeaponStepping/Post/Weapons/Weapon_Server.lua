@@ -1,4 +1,6 @@
-local kMarineWeaponDecaySlowDistance = 4
+local kMarineWeaponExpireSlowDistance = 4
+local kMarineWeaponExpireSlowRate = 2
+local kCallbackInterval
 
 function Weapon:CheckExpireTime()
     PROFILE("Weapon:CheckExpireTime")
@@ -7,9 +9,10 @@ function Weapon:CheckExpireTime()
         return false
     end
 
-    if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), kMarineWeaponDecaySlowDistance) > 0 then
+    if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), kMarineWeaponExpireSlowDistance) > 0 then
+        -- Increase remaining expireTime by kCallbackInterval / kMarineWeaponExpireSlowRate.
         local now = Shared.GetTime()
-        self:StartExpiration(self.expireTime - now + 0.05)
+        self:StartExpiration((self.expireTime - now) + (kCallbackInterval / kMarineWeaponExpireSlowRate))
         return false
     end
 
@@ -22,6 +25,6 @@ function Weapon:StartExpiration(stayTime)
     self.weaponWorldStateTime = Shared.GetTime()
     self.expireTime = Shared.GetTime() + stayTime
 
-    self:AddTimedCallback( self.CheckExpireTime, 0.5, false)
+    self:AddTimedCallback( self.CheckExpireTime, kCallbackInterval, false)
 
 end
