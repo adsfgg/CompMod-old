@@ -8,9 +8,20 @@ function Weapon:CheckExpireTime()
     end
 
     if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), kMarineWeaponDecaySlowDistance) > 0 then
-        self:StartExpiration(self.expireTime + 0.25)
+        local now = Shared.GetTime()
+        self:StartExpiration(self.expireTime - now + 0.05)
         return false
     end
 
     return true
+end
+
+function Weapon:StartExpiration(stayTime)
+
+    stayTime = stayTime or kWeaponStayTime
+    self.weaponWorldStateTime = Shared.GetTime()
+    self.expireTime = Shared.GetTime() + stayTime
+
+    self:AddTimedCallback( self.CheckExpireTime, 0.5, false)
+
 end
