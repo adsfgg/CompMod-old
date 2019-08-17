@@ -1,3 +1,5 @@
+local kMarineWeaponDecaySlowDistance = 4
+
 function Weapon:CheckExpireTime()
     PROFILE("Weapon:CheckExpireTime")
 
@@ -5,15 +7,10 @@ function Weapon:CheckExpireTime()
         return false
     end
 
-    --[[
-
-    Remove stepping on dropped weapons fully refreshes a weapon timer
-
-    if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), 1.5) > 0 then
-        self:StartExpiration()
+    if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), kMarineWeaponDecaySlowDistance) > 0 then
+        self:StartExpiration(self.expireTime + 0.25)
         return false
     end
 
-    ]]
     return true
 end
