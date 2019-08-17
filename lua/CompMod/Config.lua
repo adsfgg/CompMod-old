@@ -75,9 +75,6 @@ local modules = {
 		-- ARCs
 		"Marine/Structures/ARC/ARCCorrodeBugFix",
 
-		-- Observatory
-		"Marine/Structures/Observatory/BuildTime",
-
 	"Marine/MedpackHoT",
 	"Marine/PowerSurge",
 	"Marine/SupplyChanges",
@@ -89,9 +86,6 @@ local modules = {
 
 			-- Grenades
 			"Marine/Weapons/Grenades/GrenadeQuickThrow",
-			"Marine/Weapons/Grenades/ClusterGrenade/PlayerDamageReduction",
-
-		"Marine/Weapons/Shotgun",
 
 	"Marine/WeaponStepping",
 
@@ -109,7 +103,7 @@ function GetModConfig(kLogLevels)
 	config.kLogLevel = kLogLevels.info
 	config.kShowInFeedbackText = true
 	config.kModVersion = "2"
-	config.kModBuild = "7.7"
+	config.kModBuild = "7.2"
 	config.disableRanking = true
 	config.use_config = "none"
 
