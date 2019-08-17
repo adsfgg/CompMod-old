@@ -87,7 +87,7 @@ local modules = {
 			-- Grenades
 			"Marine/Weapons/Grenades/GrenadeQuickThrow",
 
-	"Marine/WeaponStepping",
+	"Marine/WeaponExpire",
 
 	--[[
 	  ==============================
