@@ -779,6 +779,9 @@ function AlienTeam:InitTechTree()
     self.techTree:AddAction(kTechId.SelectHallucinations, kTechId.ShadeHive)
     self.techTree:AddAction(kTechId.SelectShift, kTechId.ShiftHive)
 
+    -- Count consume like an upgrade so we can have multiples
+    self.techTree:AddUpgradeNode(kTechId.Consume, kTechId.None, kTechId.None)
+
     -- Drifter triggered abilities
     self.techTree:AddTargetedActivation(kTechId.EnzymeCloud,      kTechId.ShiftHive,      kTechId.None)
     self.techTree:AddTargetedActivation(kTechId.Hallucinate,      kTechId.ShadeHive,      kTechId.None)
@@ -951,12 +954,12 @@ function AlienTeam:InitTechTree()
     self.techTree:AddResearchNode(kTechId.BileBomb,         kTechId.BioMassThree, kTechId.None, kTechId.AllAliens)
 
     -- lerk researches
-    self.techTree:AddResearchNode(kTechId.Umbra,               kTechId.BioMassFive, kTechId.None, kTechId.AllAliens)
-    self.techTree:AddResearchNode(kTechId.Spores,              kTechId.BioMassFour, kTechId.None, kTechId.AllAliens)
+    self.techTree:AddResearchNode(kTechId.Umbra,               kTechId.BioMassSix, kTechId.None, kTechId.AllAliens)
+    self.techTree:AddResearchNode(kTechId.Spores,              kTechId.BioMassFive, kTechId.None, kTechId.AllAliens)
 
     -- fade researches
     self.techTree:AddResearchNode(kTechId.MetabolizeEnergy,        kTechId.BioMassThree, kTechId.None, kTechId.AllAliens)
-    self.techTree:AddResearchNode(kTechId.MetabolizeHealth,            kTechId.BioMassFive, kTechId.MetabolizeEnergy, kTechId.AllAliens)
+    self.techTree:AddResearchNode(kTechId.MetabolizeHealth,            kTechId.BioMassFour, kTechId.MetabolizeEnergy, kTechId.AllAliens)
     self.techTree:AddResearchNode(kTechId.Stab,              kTechId.BioMassSeven, kTechId.None, kTechId.AllAliens)
 
     -- onos researches

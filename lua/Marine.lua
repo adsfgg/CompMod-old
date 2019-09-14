@@ -252,6 +252,7 @@ function Marine:OnCreate()
 
     self.flashlightLastFrame = false
     self.weaponBeforeUseId = Entity.invalidId
+    self.tertiaryAttackLastFrame = false
 
 end
 
@@ -497,9 +498,15 @@ local function PickupWeapon(self, weapon, wasAutoPickup)
         (replacement and (self:GetActiveWeapon() == nil or obsoleteSlot == activeSlot)) then
         self:SetHUDSlotActive(weapon:GetHUDSlot())
     end
+
+    if HasMixin(weapon, "Live") then
+        weapon:SetHealth(weapon:GetMaxHealth())
+    end
     
     self.timeOfLastPickUpWeapon = Shared.GetTime()
-    self.lastDroppedWeapon = oldWep
+    if oldWep then -- Ensure the last weapon in that slot actually existed and was dropped so you don't override a valid last weapon
+        self.lastDroppedWeapon = oldWep
+    end
     
 end
 
@@ -557,6 +564,76 @@ function Marine:HandleButtons(input)
             end
         end
     end
+end
+
+function Marine:HandleAttacks(input)
+
+    Player.HandleAttacks(self, input)
+
+    if not self:GetIsCommander() and not self:GetIsUsing() then
+        if not self:GetCanAttack() then
+            input.commands = bit.band(input.commands, bit.bnot(Move.TertiaryAttack))
+        end
+
+        if bit.band(input.commands, Move.TertiaryAttack) ~= 0 then
+
+            self:TertiaryAttack(input)
+
+            self.tertiaryAttackLastFrame = true
+
+        else
+
+            if(self.tertiaryAttackLastFrame ~= nil and self.tertiaryAttackLastFrame) then
+
+                self:TertiaryAttackEnd(input)
+
+            end
+
+            self.tertiaryAttackLastFrame = false
+
+        end
+    end
+
+end
+
+function Marine:FindFirstGrenade()
+    local weapons = self:GetWeapons()
+    if weapons ~= nil then
+        for _,v in ipairs(weapons) do
+            if v:isa("GrenadeThrower") then
+                return v
+            end
+        end
+    end
+
+    return nil
+end
+
+function Marine:TertiaryAttack()
+    -- Tertiary Attack for a marine for now is the grenade quick throw.
+
+    local weapon = self:GetActiveWeapon()
+    if weapon and weapon:isa("GrenadeThrower") then
+        weapon:OnPrimaryAttack(self)
+        weapon:SetQuickThrown(false)
+    else
+        local grenadeThrower = self:FindFirstGrenade()
+        if grenadeThrower ~= nil then
+            self:SetActiveWeapon(grenadeThrower.kMapName)
+        end
+    end
+
+end
+
+function Marine:TertiaryAttackEnd()
+    -- Tertiary Attack for a marine for now is the grenade quick throw.
+
+    local activeWeapon = self:GetActiveWeapon()
+    if activeWeapon ~= nil and activeWeapon:isa("GrenadeThrower") then
+        activeWeapon:OnPrimaryAttackEnd(self)
+        activeWeapon:SetQuickThrown(true)
+    end
+
 end
 
 function Marine:GetFlashlightToggled()
