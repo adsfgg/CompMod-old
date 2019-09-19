@@ -122,7 +122,7 @@ function LayMines:OnTag(tagName)
     
 end
 
-function LayMines:OnPrimaryAttackEnd(player)
+function LayMines:OnPrimaryAttackEnd()
     self.droppingMine = false
 end
 
@@ -135,7 +135,7 @@ function LayMines:OnPrimaryAttack(player)
     -- Ensure the current location is valid for placement.
     if not player:GetPrimaryAttackLastFrame() then
     
-        local showGhost, coords, valid = self:GetPositionForStructure(player)
+        local _, _, valid = self:GetPositionForStructure(player)
         if valid then
         
             if self.minesLeft > 0 then
@@ -168,7 +168,7 @@ local function DropStructure(self, player)
 
     if Server then
     
-        local showGhost, coords, valid = self:GetPositionForStructure(player)
+        local _, coords, valid = self:GetPositionForStructure(player)
         if valid then
         
             -- Create mine.
@@ -227,10 +227,7 @@ function LayMines:PerformPrimaryAttack(player)
     if self.minesLeft > 0 then
     
         player:TriggerEffects("start_create_" .. self:GetSuffixName())
-        
-        local viewAngles = player:GetViewAngles()
-        local viewCoords = viewAngles:GetCoords()
-        
+
         success = DropStructure(self, player)
         
         if success and not player:GetDarwinMode() then
@@ -364,7 +361,7 @@ end
 
 if Client then
 
-    function LayMines:OnProcessIntermediate(input)
+    function LayMines:OnProcessIntermediate()
     
         local player = self:GetParent()
         
@@ -395,7 +392,7 @@ function LayMines:GetIsPlacementValid()
     return self.placementValid
 end
 
-function LayMines:ModifyDamageTaken(damageTable, attacker, doer, damageType)
+function LayMines:ModifyDamageTaken(damageTable, _, _, damageType)
 
     if damageType ~= kDamageType.Corrode then
         damageTable.damage = 0

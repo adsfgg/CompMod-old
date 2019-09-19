@@ -14,7 +14,7 @@ kTechId = enum {
     'SpawnMarine', 'SpawnAlien', 'CollectResources', 'TransformResources', 'Research',
 
     -- General orders and actions ("Default" is right-click)
-    'Default', 'Move', 'Patrol', 'Attack', 'Build', 'Construct', 'AutoConstruct', 'Grow', 'Cancel', 'Recycle', 'Weld', 'AutoWeld', 'Stop', 'SetRally', 'SetTarget', 'Follow', 'HoldPosition', 'FollowAlien',
+    'Default', 'Move', 'Patrol', 'Attack', 'Build', 'Construct', 'AutoConstruct', 'Grow', 'Cancel', 'Recycle', 'Consume', 'Weld', 'AutoWeld', 'Stop', 'SetRally', 'SetTarget', 'Follow', 'HoldPosition', 'FollowAlien',
     -- special mac order (follows the target, welds the target as priority and others in range)
     'FollowAndWeld',
 

@@ -335,6 +335,17 @@ function BuildTechData()
         },
 
         {
+            [kTechDataId] = kTechId.Consume,
+            [kTechDataDisplayName] = "CONSUME",
+            [kTechDataCostKey] = 0,
+            [kTechIDShowEnables] = false,
+            [kTechDataResearchTimeKey] = kConsumeTime,
+            [kTechDataHotkey] = Move.R,
+            [kTechDataTooltipInfo] = "CONSUME_TOOLTIP",
+            [kTechDataMenuPriority] = 2,
+        },
+
+        {
             [kTechDataId] = kTechId.Heal,
             [kTechDataDisplayName] = "HEAL",
             [kTechDataOrderSound] = AlienCommander.kHealTarget,
@@ -941,6 +952,7 @@ function BuildTechData()
 
         {
             [kTechDataId] = kTechId.SentryBattery,
+            [kTechDataSupply] = kSentryBatterySupply,
             [kTechDataBuildRequiresMethod] = GetRoomHasNoSentryBattery,
             [kTechDataBuildMethodFailedMessage] = "COMMANDERERROR_ONLY_ONE_BATTERY_PER_ROOM",
             [kTechDataHint] = "SENTRY_BATTERY_HINT",
@@ -1008,6 +1020,7 @@ function BuildTechData()
 
         {
             [kTechDataId] = kTechId.Observatory,
+            [kTechDataSupply] = kObservatorySupply,
             [kTechDataHint] = "OBSERVATORY_HINT",
             [kTechDataGhostModelClass] = "MarineGhostModel",
             [kTechDataRequiresPower] = true,
@@ -1250,7 +1263,7 @@ function BuildTechData()
             [kTechDataTooltipInfo] = "RIFLE_TOOLTIP",
             [kTechDataMapName] = Rifle.kMapName,
             [kTechDataDisplayName] = "RIFLE",
-            [kTechDataModel] = RifleVariantMixin.kModelNames.rifle[RifleVariantMixin.kDefaultModelName],
+            [kTechDataModel] = Rifle.kModelName,
             [kTechDataDamageType] = kRifleDamageType,
             [kTechDataCostKey] = kRifleCost,
         },
@@ -1283,7 +1296,7 @@ function BuildTechData()
             [kTechDataMapName] = Shotgun.kMapName,
             [kTechDataDisplayName] = "SHOTGUN",
             [kTechDataTooltipInfo] = "SHOTGUN_TOOLTIP",
-            [kTechDataModel] = ShotgunVariantMixin.kModelNames.shotgun[ShotgunVariantMixin.kDefaultModelName],
+            [kTechDataModel] = Shotgun.kModelName,
             [kTechDataDamageType] = kShotgunDamageType,
             [kTechDataCostKey] = kShotgunCost,
             [kStructureAttachId] = kTechId.Armory,

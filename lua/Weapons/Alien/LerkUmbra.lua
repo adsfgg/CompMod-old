@@ -19,7 +19,6 @@ LerkUmbra.kMapName = "lerkumbra"
 
 
 local kAnimationGraph = PrecacheAsset("models/alien/lerk/lerk_view.animation_graph")
-local attackEffectMaterial
 
 local networkVars =
 {
@@ -104,7 +103,7 @@ function LerkUmbra:OnPrimaryAttack(player)
     
 end
 
-function LerkUmbra:OnPrimaryAttackEnd(player)
+function LerkUmbra:OnPrimaryAttackEnd()
     self.primaryAttacking = false
 end
 
