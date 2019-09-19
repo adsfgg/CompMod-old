@@ -92,7 +92,7 @@ function Client.GetOptionColor(name, defaultValue)
 end
 
 function Client.SetOptionColor(name, value)
-    value = tonumber(value)
+    value = ColorToColorInt(value)
 
     return Client.SetOptionInteger(name, value)
 end

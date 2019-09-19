@@ -260,7 +260,7 @@ MenuData.Config.OptionsMenu.General = MenuData.CreateDefaultOptionsLayout
                             end,
                         immediateUpdate =
                             function(self, value)
-                                Client.SetOptionBoolean(kNicknameOverrideKey, value)
+                                Client.SetOptionString(kNicknameOptionsKey, value)
                                 UpdatePlayerNicknameFromOptions()
                             end,
                         

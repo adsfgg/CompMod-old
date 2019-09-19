@@ -16,9 +16,9 @@
 --                                          category is active.
 --
 --  Properties
+--      ActiveCategoryName      The name of the currently selected category.
 --
 --  Events
---
 --
 -- ========= For more information, visit us at http://www.unknownworlds.com ========================
 
@@ -28,8 +28,38 @@ Script.Load("lua/GUI/layouts/GUIFillLayout.lua")
 ---@class GUIMenuCategoryDisplayBox : GUIObject
 class "GUIMenuCategoryDisplayBox" (GUIObject)
 
+GUIMenuCategoryDisplayBox:AddClassProperty("ActiveCategoryName", "")
+
 local kLeftSideWeight = 0.3
 local kRightSideWeight = 1 - kLeftSideWeight
+
+local function OnActiveCategoryNameChanged(self, categoryName, prevCategoryName)
+    
+    if prevCategoryName ~= "" then
+        local prevActiveEntry = self.entries[prevCategoryName]
+        if prevActiveEntry then
+            prevActiveEntry:SetSelected(false)
+        end
+        
+        local prevActiveRoot = self.roots[prevCategoryName]
+        if prevActiveRoot then
+            prevActiveRoot:SetVisible(false)
+        end
+    end
+    
+    if categoryName ~= "" then
+        local activeEntry = self.entries[categoryName]
+        if activeEntry then
+            activeEntry:SetSelected(true)
+        end
+        
+        local activeRoot = self.roots[categoryName]
+        if activeRoot then
+            activeRoot:SetVisible(true)
+        end
+    end
+    
+end
 
 function GUIMenuCategoryDisplayBox:Initialize(params, errorDepth)
     errorDepth = (errorDepth or 1) + 1
@@ -94,6 +124,8 @@ function GUIMenuCategoryDisplayBox:Initialize(params, errorDepth)
         end
     end
     
+    self:HookEvent(self, "OnActiveCategoryNameChanged", OnActiveCategoryNameChanged)
+    
 end
 
 local function OnEntryPressed(entry)
@@ -103,25 +135,7 @@ local function OnEntryPressed(entry)
     
     PlayMenuSound("ButtonClick")
     
-    if self.activeCategory == entry.categoryName then
-        return -- Already active.
-    end
-    
-    if self.activeCategory ~= nil then
-        local activeEntry = self.entries[self.activeCategory]
-        local activeRoot = self.roots[self.activeCategory]
-        assert(activeEntry)
-        assert(activeRoot)
-        activeEntry:SetSelected(false)
-        activeRoot:SetVisible(false)
-    end
-    
-    self.activeCategory = entry.categoryName
-    
-    entry:SetSelected(true)
-    local root = self.roots[entry.categoryName]
-    assert(root)
-    root:SetVisible(true)
+    self:SetActiveCategoryName(entry.categoryName)
     
 end
 
@@ -156,8 +170,8 @@ function GUIMenuCategoryDisplayBox:AddCategory(categoryName, entryConfig, conten
     self.roots[categoryName] = newRoot
     
     -- Make the first-added category the currently active one.
-    if self.activeCategory == nil then
-        self.activeCategory = categoryName
+    if self:GetActiveCategoryName() == "" then
+        self:SetActiveCategoryName(categoryName)
         newEntry:SetSelected(true)
         newRoot:SetVisible(true)
     end

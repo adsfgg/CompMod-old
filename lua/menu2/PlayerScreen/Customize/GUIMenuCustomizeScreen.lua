@@ -1295,6 +1295,9 @@ function GUIMenuCustomizeScreen:SetDesiredActiveView( viewLabel )
 
 end
 
+function GUIMenuCustomizeScreen:RefreshOwnedItems()
+    GetCustomizeScene():RefreshOwnedItems()
+end
 
 function GUIMenuCustomizeScreen:Uninitialize()
     self.renderTexture = nil

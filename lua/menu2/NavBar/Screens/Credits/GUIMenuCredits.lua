@@ -43,11 +43,11 @@ local kInnerCreditsPageTopSpacing = 144
 
 local kBgImageScreenTime = 10
 local kBgImageFadeTime = 5
-local kBackgroundAlphaInit = 0.3
+local kBackgroundAlphaInit = 0.32
 local kBgFullColor = Color(1,1,1,kBackgroundAlphaInit)
 local kBgHiddenColor = Color(1,1,1,0)
 
-local kCreditsPageBgAlpha = 0.08
+local kCreditsPageBgAlpha = 0.075
 local kCreditsPageTime = 6
 local kCreditsPageTimeManual = 20 --additional time before page-flip
 
@@ -140,6 +140,8 @@ function GUIMenuCredits:Initialize(params, errorDepth)
     self.backgroundImages = {}
     self.activeBackgroundIndex = 1
     self.activeImageScreenTime = 0
+
+    self.lastUpdatedTime = 0
 
     self.runAnimation = false --early outs OnUpdate
 
@@ -407,11 +409,19 @@ function GUIMenuCredits:InitCreditsSectionPage( creditsPage, data, idx )
 
 end
 
+local kUpdateRate = 0.033  --"30fps"
 function GUIMenuCredits:OnUpdate(delta, time)
     
     if not self.runAnimation then
         return
     end
+
+    
+    if self.lastUpdatedTime + kUpdateRate > time then
+        return
+    end
+
+    self.lastUpdatedTime = time
 
     self.bottomButtons:SetLeftEnabled( self.activePageIdx > 1 )
 
@@ -436,6 +446,7 @@ function GUIMenuCredits:OnUpdate(delta, time)
     local numBgs = #self.backgroundImages
     local fadeStartTime = self.activeImageScreenTime + kBgImageFadeTime
     local fadeEndTime = self.activeImageScreenTime + kBgImageScreenTime
+    local alphaStep = 0.01
 
     --Crossfade transition
     if fadeStartTime >= time and fadeEndTime > time then
@@ -444,27 +455,27 @@ function GUIMenuCredits:OnUpdate(delta, time)
         local curColor = self.backgroundImages[self.activeBackgroundIndex]:GetColor()
         local nextColor = self.backgroundImages[nextIdx]:GetColor()
 
-        local newCurColor = LerpColor( curColor, kBgHiddenColor, delta)
-        local newNextColor = LerpColor( nextColor, kBgFullColor, delta)
+        local newCurColor = Color( curColor.r, curColor.g, curColor.b, Clamp(curColor.a - alphaStep, 0, kBackgroundAlphaInit) )
+        local newNextColor = Color( nextColor.r, nextColor.g, nextColor.b, Clamp(nextColor.a + alphaStep, 0, kBackgroundAlphaInit) )
 
         self.backgroundImages[self.activeBackgroundIndex]:SetColor( newCurColor )
         self.backgroundImages[nextIdx]:SetColor( newNextColor )
 
-        if newNextColor.a > 0.01 then
+        if newNextColor.a >= alphaStep and not self.backgroundImages[nextIdx]:GetVisible() then
             self.backgroundImages[nextIdx]:SetVisible(true)
-        elseif newCurColor.a <= 0 then
+        elseif newCurColor.a < alphaStep and self.backgroundImages[self.activeBackgroundIndex]:GetVisible() then
             self.backgroundImages[self.activeBackgroundIndex]:SetVisible(false)
         end
     end
 
     if fadeEndTime <= time then
         self.activeImageScreenTime = time
-        self.backgroundImages[self.activeBackgroundIndex]:SetVisible(false)
-        self.backgroundImages[self.activeBackgroundIndex]:SetColor( kBgHiddenColor )
+        --self.backgroundImages[self.activeBackgroundIndex]:SetVisible(false)
+        --self.backgroundImages[self.activeBackgroundIndex]:SetColor( kBgHiddenColor )
         
         self.activeBackgroundIndex = GetNextIndex(self.activeBackgroundIndex, numBgs)
-        self.backgroundImages[self.activeBackgroundIndex]:SetVisible(true)
-        self.backgroundImages[self.activeBackgroundIndex]:SetColor( kBgFullColor )
+        --self.backgroundImages[self.activeBackgroundIndex]:SetVisible(true)
+        --self.backgroundImages[self.activeBackgroundIndex]:SetColor( kBgFullColor )
     end
 
 end

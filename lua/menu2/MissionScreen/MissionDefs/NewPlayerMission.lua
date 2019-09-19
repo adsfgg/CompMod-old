@@ -101,7 +101,7 @@ GUIMenuMissionScreen.AddMissionConfig(
 
 Script.Load("lua/GUI/GUIDebug.lua")
 
-DebugStuff() -- need to remove these before ship.
+--DebugStuff() -- need to remove these before ship.
 Event.Hook("Console_g_dbg_set_achievement", function(name)
     
     if not name then

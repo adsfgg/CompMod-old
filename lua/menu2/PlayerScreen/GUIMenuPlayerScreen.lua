@@ -455,8 +455,7 @@ function GUIMenuPlayerScreen:Initialize(params, errorDepth)
         navBar:HookEvent(self, "OnScreenHide", function(self2) self2:SetGlowingButtonIndex(nil) end)
     end
     
-    self:HookEvent(self, "OnScreenDisplay", function() DoPopupsForUnopenedBundles() end)
-    
+    self:HookEvent(self, "OnScreenDisplay", function() DoPopupsForUnopenedBundles( GetCustomizeScreen().RefreshOwnedItems ) end)    
 end
 
 function GUIMenuPlayerScreen:Display(immediate)

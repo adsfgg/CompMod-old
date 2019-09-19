@@ -709,6 +709,25 @@ local variantSelectObjectsChangelist =  --?? Move to scene data file?
     [gCustomizeSceneData.kSceneObjectReferences.Onos] = { "Onos" },
 }
 
+function CustomizeScene:GetOwnedShoulderPadIndexByPatchId( patchId )
+    assert(patchId)
+
+    if patchId == 0 then
+        return 1
+    end
+
+    --TODO update, below not jittable
+    for k,v in pairs(self.ownedCosmeticItems["shoudlerPatches"]) do
+        if patchId == v then
+            return k
+        end
+    end
+
+    return false
+end
+
+local marinesList = { "MarineLeft", "MarineCenter", "MarineRight" }
+
 function CustomizeScene:InitCustomizableModels()
     
     local options = GetAndSetVariantOptions()
@@ -795,14 +814,24 @@ function CustomizeScene:InitCustomizableModels()
 
                 self.sceneObjects[scenObjIdx].model:SetMaterialParameter("textureIndex", variantIndex)
             end
+
+            --Shoulder Patch
+            if table.icontains(marinesList, sceneObject.name) then
+                if sceneObject.name == "MarineLeft" then
+                    self.marineLeftObjectIndex = scenObjIdx
+                elseif sceneObject.name == "MarineCenter" then
+                    self.marineCenterObjectIndex = scenObjIdx
+                elseif sceneObject.name == "MarineRight" then
+                    self.marineRightObjectIndex = scenObjIdx
+                end
+
+                self.sceneObjects[scenObjIdx].model:SetMaterialParameter("patchIndex", options.shoulderPadIndex - 2)
+            end
         end
     end
 
-    --Shoulder Patch
     if marineRightIndex > -1 then
-        self.marineRightObjectIndex = marineRightIndex
-        self.ownedPadActiveIndex = options.shoulderPadIndex
-        self.sceneObjects[marineRightIndex].model:SetMaterialParameter("patchIndex", self.ownedPadActiveIndex - 2)
+        self.ownedPadActiveIndex = self:GetOwnedShoulderPadIndexByPatchId( options.shoulderPadIndex )
     end
 
 end
@@ -818,6 +847,9 @@ function CustomizeScene:CyclePatches()
     local nextPadIdx = self.ownedCosmeticItems["shoudlerPatches"][tIdx]
     
     self.ownedPadActiveIndex = tIdx
+
+    self.sceneObjects[self.marineLeftObjectIndex].model:SetMaterialParameter("patchIndex", nextPadIdx - 2)
+    self.sceneObjects[self.marineCenterObjectIndex].model:SetMaterialParameter("patchIndex", nextPadIdx - 2)
     self.sceneObjects[self.marineRightObjectIndex].model:SetMaterialParameter("patchIndex", nextPadIdx - 2)
     
     Client.SetOptionInteger( "shoulderPad", nextPadIdx )
@@ -826,6 +858,7 @@ function CustomizeScene:CyclePatches()
     local padName = kShoulderPadNames[nextPadIdx]
     return padName
 end
+
 
 function CustomizeScene:CycleCosmetic( cosmeticId )
     assert(cosmeticId)
@@ -901,6 +934,11 @@ function CustomizeScene:CycleCosmetic( cosmeticId )
             end
 
             self.objectsActiveVariantsList[sceneObjName].activeVariantId = nextVariantId
+
+            if cosmeticId == gCustomizeSceneData.kSceneObjectReferences.Marine then
+                local patchIndex = self.ownedCosmeticItems["shoudlerPatches"][self.ownedPadActiveIndex]
+                self.sceneObjects[objIdx].model:SetMaterialParameter("patchIndex", patchIndex - 2)
+            end
         end
 
         if variantKey then
@@ -957,6 +995,11 @@ function CustomizeScene:CycleMarineGenderType()
             variantIndex = variantsTbl[variantKey] - 1
             self.sceneObjects[objIdx].model:SetMaterialParameter("textureIndex", variantIndex)
         end
+        
+        local patchIndex = self.ownedCosmeticItems["shoudlerPatches"][self.ownedPadActiveIndex]
+        self.sceneObjects[self.marineLeftObjectIndex].model:SetMaterialParameter("patchIndex", patchIndex - 2)
+        self.sceneObjects[self.marineCenterObjectIndex].model:SetMaterialParameter("patchIndex", patchIndex - 2)
+        self.sceneObjects[self.marineRightObjectIndex].model:SetMaterialParameter("patchIndex", patchIndex - 2)
     end
 
     Client.SetOptionString("sexType", firstToUpper(curSex))

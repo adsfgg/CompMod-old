@@ -1449,8 +1449,14 @@ function FetchAllOwnedItems()
     for i = 1, #kOnosVariant do
         local key = kOnosVariant[i]
         local itemId = kOnosVariantData[kOnosVariant[key]].itemId
-        if itemId == nil or GetHasVariant( kOnosVariantData, i, nil ) then
+        if (itemId == nil and not kOnosVariantData[kOnosVariant[key]].itemIds) or GetHasVariant( kOnosVariantData, i, nil ) then
             table.insert(ownedItems["onosVariant"], key)
+        elseif kOnosVariantData[kOnosVariant[key]].itemIds then --one-off for Shadow Onos
+            local id1 = kOnosVariantData[kOnosVariant[key]].itemIds[1]
+            local id2 = kOnosVariantData[kOnosVariant[key]].itemIds[2]
+            if GetHasVariant( kOnosVariantData, id1, nil ) or GetHasVariant( kOnosVariantData, id2, nil ) then
+                table.insert(ownedItems["onosVariant"], key)
+            end
         end
     end
 

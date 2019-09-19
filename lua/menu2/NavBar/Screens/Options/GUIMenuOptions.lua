@@ -31,14 +31,14 @@ local kInitScreenOptionKey = "system/options-menu-init-screen"
 ---@class GUIMenuOptions : GUIMenuNavBarScreen
 class "GUIMenuOptions" (GUIMenuNavBarScreen)
 
+GUIMenuOptions:AddCompositeClassProperty("_ChildWindowsAnchor", "childWindows", "Anchor")
+
 -- Singleton accessor.  Does not create options menu if it doesn't already exist, so keep in mind
 -- that it can return nil.
 local optionsMenu
 function GetOptionsMenu()
     return optionsMenu
 end
-
-GUIMenuOptions:AddCompositeClassProperty("_ChildWindowsAnchor", "childWindows", "Anchor")
 
 -- how many pixels to leave between the bottom of the screen and the bottom of this screen.
 local kScreenBottomDistance = 250
@@ -97,19 +97,13 @@ local function OnBackClicked(self)
     
 end
 
+local function OnRightButtonClicked(self)
+    self.rightButtonCallback(self)
+end
+
 local function OnApplyClicked(self)
     self:ApplyChanges()
 end
-
-local kConditionAlways = function() return true end
-
-local kDefaultLeftButtonLabel = "BACK"
-local kDefaultLeftButtonCallback = OnBackClicked
-local kDefaultLeftButtonEnabledFunc = kConditionAlways
-
-local kDefaultRightButtonLabel = "MENU_APPLY"
-local kDefaultRightButtonCallback = OnApplyClicked
-local kDefaultRightButtonEnabledFunc = GUIMenuOptions.GetHasPendingChanges
 
 local kButtonData =
 {
@@ -157,9 +151,6 @@ local kButtonData =
             Vector(1545,   0, 0),
         },
         xAnchor = 2.1,
-        rightButtonLabel = "RESTART",
-        rightButtonCallback = OnRestartClicked,
-        rightButtonEnabledFunc = function() return not kInGame end,
     },
     
     { -- 4 - Graphics
@@ -174,8 +165,6 @@ local kButtonData =
             Vector(2016,   0, 0),
         },
         xAnchor = 3.15,
-        leftButtonLabel = "BACK",
-        rightButtonLabel = "MENU_APPLY",
     },
     
     { -- 5 - Sound
@@ -192,8 +181,6 @@ local kButtonData =
         },
         glowOffset = Vector(-59, 0, 0),
         xAnchor = 4.2,
-        leftButtonLabel = "BACK",
-        rightButtonLabel = "MENU_APPLY",
     },
 }
 
@@ -231,25 +218,17 @@ end
 
 local function UpdateBottomButtons(self)
     
-    local buttonData = FindButtonDataContainingValueForKey(self, "subScreenName", self.activeSubScreenName)
-    
-    -- Set name of button items.
-    self.bottomButtons:SetLeftLabel(Locale.ResolveString(buttonData.leftButtonLabel or kDefaultLeftButtonLabel))
-    self.bottomButtons:SetRightLabel(Locale.ResolveString(buttonData.rightButtonLabel or kDefaultRightButtonLabel))
-    
-    -- Set enabled state of buttons.
-    local leftEnabledFunc = buttonData.leftButtonEnabledFunc or kDefaultLeftButtonEnabledFunc
-    local rightEnabledFunc = buttonData.rightButtonEnabledFunc or kDefaultRightButtonEnabledFunc
-    self.bottomButtons:SetLeftEnabled(leftEnabledFunc(self))
-    self.bottomButtons:SetRightEnabled(rightEnabledFunc(self)) 
-    
-    -- Remove previous callbacks for buttons.
-    self:UnHookEvent(self.bottomButtons, "OnLeftPressed")
-    self:UnHookEvent(self.bottomButtons, "OnRightPressed")
-    
-    -- Hookup callbacks for buttons.
-    self:HookEvent(self.bottomButtons, "OnLeftPressed", buttonData.leftButtonCallback or kDefaultLeftButtonCallback)
-    self:HookEvent(self.bottomButtons, "OnRightPressed", buttonData.rightButtonCallback or kDefaultRightButtonCallback)
+    -- Figure out what the text of the bottom-right button should be, and whether or not it should
+    -- be enabled.
+    if self.activeSubScreenName == "Mods" and self.modsCategoryDisplayBox:GetActiveCategoryName() == "manageMods" and not kInGame then
+        self.bottomButtons:SetRightLabel(Locale.ResolveString("RESTART"))
+        self.rightButtonCallback = OnRestartClicked
+        self.bottomButtons:SetRightEnabled(true)
+    else
+        self.bottomButtons:SetRightLabel(Locale.ResolveString("MENU_APPLY"))
+        self.rightButtonCallback = OnApplyClicked
+        self.bottomButtons:SetRightEnabled(self:GetHasPendingChanges())
+    end
     
 end
 
@@ -377,7 +356,7 @@ local function GetNeedsManualRestart(self)
     
 end
 
-function UpdateNeedsRestartText(self)
+local function UpdateNeedsRestartText(self)
     
     local needsRestart = GetNeedsManualRestart(self)
     
@@ -405,6 +384,8 @@ local function InitModsMenu(self)
     
     assert(self.modsCategoryDisplayBox)
     assert(self.modsCategoryDisplayBox:isa("GUIMenuCategoryDisplayBox"))
+    
+    self:HookEvent(self.modsCategoryDisplayBox, "OnActiveCategoryNameChanged", UpdateBottomButtons)
     
     assert(type(gModsCategories) == "table")
     assert(gModsCategories[1].categoryName == "manageMods") -- manageMods must be first!
@@ -482,6 +463,10 @@ function GUIMenuOptions:Initialize(params, errorDepth)
     self.bottomButtons:SetTabMinWidth(kTabMinWidth)
     self.bottomButtons:SetTabHeight(kTabHeight)
     self.bottomButtons:SetFont(MenuStyle.kButtonFont)
+    self.bottomButtons:SetLeftLabel(Locale.ResolveString("BACK"))
+    self:HookEvent(self.bottomButtons, "OnLeftPressed", OnBackClicked)
+    self.bottomButtons:SetRightLabel(Locale.ResolveString("MENU_APPLY"))
+    self:HookEvent(self.bottomButtons, "OnRightPressed", OnRightButtonClicked)
     self.coolBack:HookEvent(self.bottomButtons, "OnTabSizeChanged", self.coolBack.SetTabSize)
     self.coolBack:SetTabSize(self.bottomButtons:GetTabSize())
     
@@ -752,6 +737,13 @@ function GUIMenuOptions:OnOptionChanged(widget, value, prevValue)
         self.previousValues = nil
     end
     
+    -- Automatically apply the option value, so if the user quits without pressing "apply", their
+    -- changes won't be lost.  In the original design, they would be lost, but this wasn't very well
+    -- thought through.  Now, the "Apply" button really just serves to apply any changes that
+    -- shouldn't be done automatically (eg resolution changes), and clears the previous values list
+    -- used for reverting.
+    SetOptionFromWidgetValue(widget)
+    
     UpdateOptions(self)
     
 end
@@ -788,7 +780,7 @@ function GUIMenuOptions:ApplyChanges()
     if self.previousSubValues then
         for widget, subOptions in pairs(self.previousSubValues) do -- JIT-SAFE pairs.
             for i=1, #subOptions do
-                subOption = subOptions[i]
+                local subOption = subOptions[i]
                 widget:ApplySubOption(subOption.name)
             end
         end

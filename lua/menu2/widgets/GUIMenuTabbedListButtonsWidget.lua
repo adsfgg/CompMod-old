@@ -29,19 +29,6 @@ local kLabelOffsetY = -8
 GUIMenuTabbedListButtonsWidget:AddClassProperty("ButtonListMinWidth", 400)
 GUIMenuTabbedListButtonsWidget:AddClassProperty("ButtonListHeight", 100)
 
-
-local function UpdateResolutionScaling(self, newX, newY, oldX, oldY)
-    
-    local mockupRes = Vector(1920, 1080, 0)
-    local res = Vector(newX, newY, 0)
-    local scale = res / mockupRes
-    scale = math.min(scale.x, scale.y)
-    
-    self:SetScale(scale, scale)
-
-end
-
-
 function GUIMenuTabbedListButtonsWidget:Initialize(params, errorDepth)
     errorDepth = (errorDepth or 1) + 1
     
@@ -57,10 +44,6 @@ function GUIMenuTabbedListButtonsWidget:Initialize(params, errorDepth)
     })
     self:HookEvent(self.layout, "OnSizeChanged", self.SetSize)
 
-    self:SetLayer(30) -- underneath GUIMenuNavBar @ 100
-
-    self:HookEvent(GetGlobalEventDispatcher(), "OnResolutionChanged", UpdateResolutionScaling)
-    UpdateResolutionScaling(self, Client.GetScreenWidth(), Client.GetScreenHeight())
 end
 
 --TODO Add "End Cap" images (optional)

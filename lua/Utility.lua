@@ -585,11 +585,15 @@ end
 function ColorIntToColor(color)
 
     local red = bit.rshift(bit.band(color, 0xFF0000), 16)
-    local blue = bit.rshift(bit.band(color, 0x00FF00), 8)
-    local green = bit.band(color, 0x0000FF)
+    local green = bit.rshift(bit.band(color, 0x00FF00), 8)
+    local blue = bit.band(color, 0x0000FF)
 
-    return Color(red / 0xFF, blue / 0xFF, green / 0xFF, 1)
+    return Color(red / 0xFF, green / 0xFF, blue / 0xFF, 1)
 
+end
+
+function ColorToColorInt(color)
+    return bit.bor(bit.lshift(color.r * 255, 16), bit.lshift(color.g * 255, 8), color.b * 255)
 end
 
 -- Returns table of bit masks 

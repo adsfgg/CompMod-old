@@ -117,7 +117,7 @@ function GUIMainMenu:Initialize(params, errorDepth)
 
     -- Check for new items received whenever the user opens the menu.
     self:HookEvent(self, "OnOpened", function()
-        DoPopupsForNewlyReceivedItems()
+        DoPopupsForNewlyReceivedItems( GetCustomizeScreen().RefreshOwnedItems )
     end)
     
     self:SetVisible(false)
