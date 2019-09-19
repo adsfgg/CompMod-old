@@ -188,7 +188,7 @@ function ARC:UpdateOrders(deltaTime)
         
             local targetEntity = Shared.GetEntity(self.targetedEntity)
             if targetEntity then
-                self.targetPosition = targetEntity:GetOrigin()
+                self.targetPosition = GetTargetOrigin(targetEntity)
             end
             
             if self:ValidateTargetPosition(self.targetPosition) then
@@ -238,7 +238,7 @@ function ARC:AcquireTarget()
     if finalTarget ~= nil and self:ValidateTargetPosition(finalTarget:GetOrigin()) then
     
         self:SetMode(ARC.kMode.Targeting)
-        self.targetPosition = finalTarget:GetOrigin()
+        self.targetPosition = GetTargetOrigin(finalTarget)
         self.targetedEntity = finalTarget:GetId()
         
     else
@@ -251,7 +251,7 @@ function ARC:AcquireTarget()
     
 end
 
-local function PerformAttack(self)
+function ARC:PerformAttack()
 
     local distToTarget = self.targetPosition and (self.targetPosition - self:GetOrigin()):GetLengthXZ()
 
@@ -266,7 +266,7 @@ local function PerformAttack(self)
         local hitEntities = GetEntitiesWithMixinWithinRange("Live", self.targetPosition, ARC.kSplashRadius)
 
         -- Do damage to every target in range
-        RadiusDamage(hitEntities, self.targetPosition, ARC.kSplashRadius, ARC.kAttackDamage, self, true)
+        RadiusDamage(hitEntities, self.targetPosition, ARC.kSplashRadius, ARC.kAttackDamage, self, true, nil, false)
 
         -- Play hit effect on each
         for _, target in ipairs(hitEntities) do
@@ -316,7 +316,7 @@ function ARC:OnTag(tagName)
     PROFILE("ARC:OnTag")
     
     if tagName == "fire_start" then
-        PerformAttack(self)
+        self:PerformAttack()
     elseif tagName == "target_start" then
         self:TriggerEffects("arc_charge")
     elseif tagName == "attack_end" then
@@ -326,32 +326,32 @@ function ARC:OnTag(tagName)
     elseif tagName == "undeploy_start" then
         self:TriggerEffects("arc_stop_charge")
     elseif tagName == "deploy_end" then
-    
-        -- Clear orders when deployed so new ARC attack order will be used
-        self.deployMode = ARC.kDeployMode.Deployed
-        self:ClearOrders()
-        -- notify the target selector that we have moved.
-        self.targetSelector:AttackerMoved()
-        
-        self:AdjustMaxHealth(kARCDeployedHealth)
-        
-        local currentArmor = self:GetArmor()
-        if currentArmor ~= 0 then
-            self.undeployedArmor = currentArmor
-        end
-        
-        self:SetMaxArmor(kARCDeployedArmor)
-        self:SetArmor(self.deployedArmor)
-        
-    elseif tagName == "undeploy_end" then
-    
-        self.deployMode = ARC.kDeployMode.Undeployed
-        
-        self:AdjustMaxHealth(kARCHealth)
-        self.deployedArmor = self:GetArmor()
-        self:SetMaxArmor(kARCArmor)
-        self:SetArmor(self.undeployedArmor)
+        if self.deployMode ~= ARC.kDeployMode.Deployed then
 
+            -- Clear orders when deployed so new ARC attack order will be used
+            self.deployMode = ARC.kDeployMode.Deployed
+            self:ClearOrders()
+            -- notify the target selector that we have moved.
+            self.targetSelector:AttackerMoved()
+
+            self:AdjustMaxHealth(kARCDeployedHealth)
+            self.undeployedArmor = self:GetArmor()
+
+            self:SetMaxArmor(kARCDeployedArmor)
+            self:SetArmor(self.deployedArmor)
+
+        end
+    elseif tagName == "undeploy_end" then
+        if self.deployMode ~= ARC.kDeployMode.Undeployed then
+
+            self.deployMode = ARC.kDeployMode.Undeployed
+
+            self:AdjustMaxHealth(kARCHealth)
+            self.deployedArmor = self:GetArmor()
+
+            self:SetMaxArmor(kARCArmor)
+            self:SetArmor(self.undeployedArmor)
+        end
     end
     
 end

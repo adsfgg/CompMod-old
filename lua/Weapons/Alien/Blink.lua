@@ -17,10 +17,11 @@ class 'Blink' (Ability)
 
 Blink.kMapName = "blink"
 
--- initial force added when starting blink
-local kEtherealForce = 13.5
--- always add a little above top speed
-local kBlinkAddForce = 2
+-- initial force added when starting blink.
+kEtherealForce = 16.25
+kEtherealCelerityForcePerSpur = 0.5
+-- Boost added when player blinks again in the same direction. The added benefit exact.
+local kEtherealBoost = 2.5
 local kEtherealVerticalForce = 2
 
 local networkVars =
@@ -140,31 +141,34 @@ function Blink:SetEthereal(player, state)
     if player.ethereal ~= state then
     
         if state then
-        
             player.etherealStartTime = Shared.GetTime()
             TriggerBlinkOutEffects(self, player)
 
+            local playerForwardAxis = player:GetViewCoords().zAxis
+
             local celerityLevel = GetHasCelerityUpgrade(player) and player:GetSpurLevel() or 0
-            local oldSpeed = player:GetVelocity():GetLengthXZ()
-            local oldVelocity = player:GetVelocity()
-            oldVelocity.y = 0
-            local newSpeed = math.max(oldSpeed, kEtherealForce + celerityLevel * 0.5)
+            local currentVelocityVector = player:GetVelocity()
 
-            -- need to handle celerity different for the fade. blink is a big part of the basic movement, celerity wont be significant enough if not considered here
-            local celerityMultiplier = 1 + celerityLevel * 0.10
+            -- Add a speedboost to the current velocity.
+            currentVelocityVector:Add(playerForwardAxis * kEtherealBoost)
+            -- Extract the player's velocity in the player's forward direction:
+            local forwardVelocity = currentVelocityVector:DotProduct(playerForwardAxis)
 
-            local newVelocity = player:GetViewCoords().zAxis * (kEtherealForce + celerityLevel * 0.5) + oldVelocity
-            if newVelocity:GetLength() > newSpeed then
-                newVelocity:Scale(newSpeed / newVelocity:GetLength())
-            end
-            
+            local blinkSpeed = kEtherealForce + celerityLevel * kEtherealCelerityForcePerSpur
+            -- taperedVelocity is tracked so that if we're for some reason going faster than blink speed, we use that instead of
+            -- slowing the player down. This allows for a skilled build up of extra speed.
+            local taperedVelocity = math.max(forwardVelocity, blinkSpeed)
+
+            local newVelocityVector = (playerForwardAxis * taperedVelocity)
+
+            --Apply a minimum y directional speed of kEtherealVerticalForce if on the ground.
             if player:GetIsOnGround() then
-                newVelocity.y = math.max(newVelocity.y, kEtherealVerticalForce)
+                newVelocityVector.y = math.max(newVelocityVector.y, kEtherealVerticalForce)
             end
-            
-            newVelocity:Add(player:GetViewCoords().zAxis * kBlinkAddForce * celerityMultiplier)
-            
-            player:SetVelocity(newVelocity)
+
+            -- There is no need to check for a max speed here, since the logic in the active blink code will keep it
+            -- from exceeding the limit.
+            player:SetVelocity(newVelocityVector)
             player.onGround = false
             player.jumping = true
             

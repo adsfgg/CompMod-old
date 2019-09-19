@@ -237,7 +237,7 @@ kTechIdToMaterialOffset[kTechId.SelectTunnelExitTwo] = 176
 kTechIdToMaterialOffset[kTechId.SelectTunnelExitThree] = 176
 kTechIdToMaterialOffset[kTechId.SelectTunnelExitFour] = 176
 kTechIdToMaterialOffset[kTechId.TunnelRelocate] = 190
-kTechIdToMaterialOffset[kTechId.TunnelCollapse] = 108
+kTechIdToMaterialOffset[kTechId.TunnelCollapse] = 191
 
 kTechIdToMaterialOffset[kTechId.Stab] = 105
 kTechIdToMaterialOffset[kTechId.ShadowStep] = 160
@@ -318,6 +318,7 @@ kTechIdToMaterialOffset[kTechId.AdvancedArmoryUpgrade] = 99
 
 kTechIdToMaterialOffset[kTechId.Spikes] = 106
 kTechIdToMaterialOffset[kTechId.Recycle] = 108
+kTechIdToMaterialOffset[kTechId.Consume] = 191
 kTechIdToMaterialOffset[kTechId.Storm] = 113
 kTechIdToMaterialOffset[kTechId.Patrol] = 120
 kTechIdToMaterialOffset[kTechId.Move] = 117

@@ -33,17 +33,17 @@ AddMixinNetworkVars(ShotgunVariantMixin, networkVars)
 Shotgun.kStartOffset = 0.1
 Shotgun.kBulletSize = 0.016
 
-Shotgun.kDamageFalloffStart = 7 -- in meters, full damage closer than this.
-Shotgun.kDamageFalloffEnd = 14 -- in meters, minimum damage further than this, gradient between start/end.
-Shotgun.kDamageFalloffReductionFactor = 0.4 -- 60% reduction
+Shotgun.kDamageFalloffStart = 6 -- in meters, full damage closer than this.
+Shotgun.kDamageFalloffEnd = 12 -- in meters, minimum damage further than this, gradient between start/end.
+Shotgun.kDamageFalloffReductionFactor = 1.00 -- 0% reduction
 
 Shotgun.kSpreadVectors = {}
 do
     local kShotgunRings =
     {
-        { distance = 0.0, pelletCount = 1 },
-        { distance = 0.5, pelletCount = 8 },
-        { distance = 1.0, pelletCount = 6 },
+        { distance = 0.0, pelletCount = 1, pelletSize = 0.016, pelletDamage = 20 },
+        { distance = 0.5, pelletCount = 5, pelletSize = 0.016, pelletDamage = 16 },
+        { distance = 1.5, pelletCount = 7, pelletSize = 0.032, pelletDamage = 10 },
     }
 
     local function CalculateShotgunSpreadVectors()
@@ -57,7 +57,7 @@ do
                 local theta = radiansPer * (pellet - 1)
                 local x = math.cos(theta) * ring.distance
                 local y = math.sin(theta) * ring.distance
-                table.insert(Shotgun.kSpreadVectors, GetNormalizedVector(Vector(x, y, kShotgunSpreadDistance)))
+                table.insert(Shotgun.kSpreadVectors, { vector = GetNormalizedVector(Vector(x, y, kShotgunSpreadDistance)), size = ring.pelletSize, damage = ring.pelletDamage})
 
             end
 
@@ -76,13 +76,13 @@ local kMuzzleAttachPoint = "fxnode_shotgunmuzzle"
 function Shotgun:OnCreate()
 
     ClipWeapon.OnCreate(self)
-    
+
     InitMixin(self, PickupableWeaponMixin)
     InitMixin(self, LiveMixin)
     InitMixin(self, PointGiverMixin)
     InitMixin(self, AchievementGiverMixin)
     InitMixin(self, ShotgunVariantMixin)
-    
+
     self.emptyPoseParam = 0
 
 end
@@ -90,15 +90,15 @@ end
 if Client then
 
     function Shotgun:OnInitialized()
-    
+
         ClipWeapon.OnInitialized(self)
-    
+
     end
 
 end
 
 function Shotgun:GetPrimaryMinFireDelay()
-    return kShotgunFireRate    
+    return kShotgunFireRate
 end
 
 function Shotgun:GetPickupOrigin()
@@ -139,7 +139,7 @@ function Shotgun:GetTracerEffectFrequency()
 end
 
 function Shotgun:GetBulletDamage()
-    return kShotgunDamage    
+    return kShotgunDamage
 end
 
 function Shotgun:GetHasSecondary()
@@ -157,35 +157,35 @@ end
 function Shotgun:UpdateViewModelPoseParameters(viewModel)
 
     viewModel:SetPoseParam("empty", self.emptyPoseParam)
-    
+
 end
 
 local function LoadBullet(self)
 
     if self.ammo > 0 and self.clip < self:GetClipSize() then
-    
+
         self.clip = self.clip + 1
         self.ammo = self.ammo - 1
-        
+
     end
-    
+
 end
 
 
 function Shotgun:OnTag(tagName)
 
     PROFILE("Shotgun:OnTag")
-    
+
     local continueReloading = false
     if self:GetIsReloading() and tagName == "reload_end" then
-    
+
         continueReloading = true
         self.reloading = false
-        
+
     end
-    
+
     ClipWeapon.OnTag(self, tagName)
-    
+
     if tagName == "load_shell" then
         LoadBullet(self)
     elseif tagName == "reload_shotgun_start" then
@@ -195,16 +195,16 @@ function Shotgun:OnTag(tagName)
     elseif tagName == "reload_shotgun_end" then
         self:TriggerEffects("shotgun_reload_end")
     end
-    
+
     if continueReloading then
-    
+
         local player = self:GetParent()
         if player then
             player:Reload()
         end
-        
+
     end
-    
+
 end
 
 -- used for last effect
@@ -234,13 +234,17 @@ function Shotgun:FirePrimary(player)
             break
         end
 
-        local spreadDirection = shootCoords:TransformVector(self.kSpreadVectors[bullet])
+        local spreadVector = self.kSpreadVectors[bullet].vector
+        local pelletSize = self.kSpreadVectors[bullet].size
+        local damage = self.kSpreadVectors[bullet].damage
 
-        local startPoint = player:GetEyePos() + shootCoords.xAxis * self.kSpreadVectors[bullet].x * self.kStartOffset + shootCoords.yAxis * self.kSpreadVectors[bullet].y * self.kStartOffset
+        local spreadDirection = shootCoords:TransformVector(spreadVector)
+
+        local startPoint = player:GetEyePos() + shootCoords.xAxis * spreadVector.x * self.kStartOffset + shootCoords.yAxis * spreadVector.y * self.kStartOffset
 
         local endPoint = player:GetEyePos() + spreadDirection * range
 
-        local targets, trace, hitPoints = GetBulletTargets(startPoint, endPoint, spreadDirection, self.kBulletSize, filter)
+        local targets, trace, hitPoints = GetBulletTargets(startPoint, endPoint, spreadDirection, pelletSize, filter)
 
         HandleHitregAnalysis(player, startPoint, endPoint, trace)
 
@@ -265,14 +269,14 @@ function Shotgun:FirePrimary(player)
             local target = targets[i]
             local hitPoint = hitPoints[i]
 
-            local damage = kShotgunDamage
+            -- Falloff is turned off, so kill this code to improve performance. Leave this code in case we want to re-enable.
 
             -- Apply a damage falloff for shotgun damage.
-            local distance = (hitPoint - startPoint):GetLength()
-            local falloffFactor = Clamp((distance - self.kDamageFalloffStart) / (self.kDamageFalloffEnd - self.kDamageFalloffStart), 0, 1)
-            local nearDamage = damage
-            local farDamage = damage * self.kDamageFalloffReductionFactor
-            damage = nearDamage * (1.0 - falloffFactor) + farDamage * falloffFactor
+            --local distance = (hitPoint - startPoint):GetLength()
+            --local falloffFactor = Clamp((distance - self.kDamageFalloffStart) / (self.kDamageFalloffEnd - self.kDamageFalloffStart), 0, 1)
+            --local nearDamage = damage
+            --local farDamage = damage * self.kDamageFalloffReductionFactor
+            --damage = nearDamage * (1.0 - falloffFactor) + farDamage * falloffFactor
 
             self:ApplyBulletGameplayEffects(player, target, hitPoint - hitOffset, direction, damage, "", showTracer and i == numTargets)
 
@@ -294,32 +298,32 @@ end
 
 function Shotgun:GetAmmoPackMapName()
     return ShotgunAmmo.kMapName
-end    
+end
 
 
 if Client then
 
     function Shotgun:GetBarrelPoint()
-    
+
         local player = self:GetParent()
         if player then
-        
+
             local origin = player:GetEyePos()
             local viewCoords= player:GetViewCoords()
-            
+
             return origin + viewCoords.zAxis * 0.4 + viewCoords.xAxis * -0.18 + viewCoords.yAxis * -0.2
-            
+
         end
-        
+
         return self:GetOrigin()
-        
+
     end
-    
+
     function Shotgun:GetUIDisplaySettings()
         return { xSize = 256, ySize = 128, script = "lua/GUIShotgunDisplay.lua", variant = self:GetShotgunVariant() }
     end
-    
-    function Shotgun:OnUpdateRender()        
+
+    function Shotgun:OnUpdateRender()
 
         ClipWeapon.OnUpdateRender( self )
 
@@ -327,20 +331,20 @@ if Client then
         if parent and parent:GetIsLocalPlayer() then
             local viewModel = parent:GetViewModelEntity()
             if viewModel and viewModel:GetRenderModel() then
-                
+
                 local clip = self:GetClip()
                 local time = Shared.GetTime()
-                
-                if self.lightCount ~= clip and 
-                    not self.lightChangeTime or self.lightChangeTime + 0.15 < time 
+
+                if self.lightCount ~= clip and
+                    not self.lightChangeTime or self.lightChangeTime + 0.15 < time
                 then
                     self.lightCount = clip
                     self.lightChangeTime = time
                 end
-                
+
                 viewModel:InstanceMaterials()
                 viewModel:GetRenderModel():SetMaterialParameter("ammo", self.lightCount or 6 )
-                
+
             end
         end
     end
@@ -367,11 +371,11 @@ if Server then
     function Shotgun:GetDestroyOnKill()
         return true
     end
-    
+
     function Shotgun:GetSendDeathMessageOverride()
         return false
-    end   
-    
+    end
+
 end
 
 Shared.LinkClassToMap("Shotgun", Shotgun.kMapName, networkVars)
