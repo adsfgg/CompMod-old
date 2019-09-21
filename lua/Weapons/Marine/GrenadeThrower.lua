@@ -118,9 +118,11 @@ function GrenadeThrower:OnPrimaryAttack(_)
 end
 
 function GrenadeThrower:OnSecondaryAttack(_)
+
 end
 
 function GrenadeThrower:OnSecondaryAttackEnd(_)
+
 end
 
 function GrenadeThrower:SetQuickThrown(isQuickThrown)

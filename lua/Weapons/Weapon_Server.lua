@@ -6,7 +6,10 @@
 --
 -- ========= For more information, visit us at http://www.unknownworlds.com =====================
 
-local kPerformExpirationCheckAfterDelay = 1.00
+kPerformExpirationCheckAfterDelay = 1.00
+kMarineWeaponExpireSlowDistance = 4
+kMarineWeaponExpireSlowRate = 0.5
+kWeaponExpireCallbackInterval = 0.05
 
 function Weapon:OnInitialized()
 
@@ -132,8 +135,9 @@ function Weapon:CheckExpireTime()
         return false
     end
 
-    if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), 1.5) > 0 then
-        self:StartExpiration()
+    if #GetEntitiesForTeamWithinRange("Marine", self:GetTeamNumber(), self:GetOrigin(), kMarineWeaponExpireSlowDistance) > 0 then
+        local time = Shared.GetTime()
+        self:StartExpiration((self.expireTime - time) + kWeaponExpireCallbackInterval * kMarineWeaponExpireSlowRate)
         return false
     end
 
@@ -146,7 +150,7 @@ function Weapon:StartExpiration(stayTime)
     self.weaponWorldStateTime = Shared.GetTime()
     self.expireTime = Shared.GetTime() + stayTime
 
-    self:AddTimedCallback( self.CheckExpireTime, 0.5)
+    self:AddTimedCallback( self.CheckExpireTime, kWeaponExpireCallbackInterval, false)
 
 end
 

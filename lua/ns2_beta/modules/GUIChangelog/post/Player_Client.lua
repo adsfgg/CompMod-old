@@ -3,7 +3,7 @@ Script.Load("lua/ns2_beta/modules/GUIChangelog/new/GUIModChangelog.lua")
 kBetaModVersionKey = "betamod_version"
 
 local function showChangeLog()
-    MainMenu_Open()
+    GUIMainMenu_Open()
     local mm = GetGUIMainMenu and GetGUIMainMenu()
     if mm then
         local changeLog = CreateMenuElement(mm.mainWindow, "GUIModChangelog")
